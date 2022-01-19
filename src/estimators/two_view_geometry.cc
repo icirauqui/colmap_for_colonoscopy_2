@@ -258,7 +258,7 @@ void TwoViewGeometry::EstimateCalibrated(
     const FeatureMatches& matches, const Options& options) {
   options.Check();
 
-  std::cout << "TwoViewGeometry::EstimateCalibrated" << std::endl;
+  //std::cout << "TwoViewGeometry::EstimateCalibrated" << std::endl;    commented for IC03
 
   // std::cout << std::endl << "Key Point 1 x: " << _points1[0][0] << std::endl;
   // std::cout << "Key Point 1 y: " << _points1[0][1] << std::endl;
@@ -372,7 +372,7 @@ void TwoViewGeometry::EstimateCalibratedPoints(
     const FeatureMatches& matches, const Options& options) {
   options.Check();
 
-  std::cout << "TwoViewGeometry::EstimateCalibratedPoints" << std::endl;
+  //std::cout << "TwoViewGeometry::EstimateCalibratedPoints" << std::endl;    commented for IC03
 
   if (matches.size() < options.min_num_inliers) {
     config = ConfigurationType::DEGENERATE;

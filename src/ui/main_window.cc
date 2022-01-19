@@ -1401,14 +1401,14 @@ void MainWindow::DisableBlockingActions() {
 
 void MainWindow::UpdateWindowTitle() {
   if (*options_.project_path == "") {
-    setWindowTitle(QString::fromStdString("COLMAP_FOR_COLONOSCOPY"));
+    setWindowTitle(QString::fromStdString("COLMAP FOR COLONOSCOPY 2"));
   } else {
     std::string project_title = *options_.project_path;
     if (project_title.size() > 80) {
       project_title =
           "..." + project_title.substr(project_title.size() - 77, 77);
     }
-    setWindowTitle(QString::fromStdString("COLMAP_FOR_COLONOSCOPY - " + project_title));
+    setWindowTitle(QString::fromStdString("COLMAP FOR COLONOSCOPY 2 - " + project_title));
   }
 }
 

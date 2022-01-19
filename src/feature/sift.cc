@@ -1180,7 +1180,7 @@ void MatchGuidedSiftFeaturesCPU(const SiftMatchingOptions& match_options,
 
   std::function<bool(float, float, float, float)> guided_filter;
   if (two_view_geometry->config == TwoViewGeometry::CALIBRATED) {
-    //std::cout << "TwoViewGeometry::CALIBRATED angle" << std::endl;    //IC06
+    //std::cout << "TwoViewGeometry::CALIBRATED angle" << std::endl;    //IC06    commented for IC03
     guided_filter = [&](const float x1, const float y1, const float x2, const float y2) {
       const Eigen::Vector3f p1(x1, y1, 1.0f);
       const Eigen::Vector3f p2(x2, y2, 1.0f);

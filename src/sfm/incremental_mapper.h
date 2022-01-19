@@ -125,21 +125,20 @@ class IncrementalMapper {
     // Number of threads.
     int num_threads = -1;
 
-    //IC03 - Frames between image bundles for model computing
-    unsigned int frames_between_bundles = 3;
+    // IC03 - Frames between image bundles for model computing
+    unsigned int frames_between_bundles = 5;
 
-    //IC03 - Num of images in bundle
-    unsigned int bundle_size = 15;
+    // IC03 - Num of images in bundle
+    unsigned int bundle_size = 100;
 
-    //IC03 - Min number of 3D for bundled model validation
+    // IC03 - Min number of 3D for bundled model validation
     unsigned int min_3Ds_for_validation = 30;
 
-    //IC03 - Enable bundled reconstruction
+    // IC03 - Enable bundled reconstruction
     bool bundle_reconstruction = true;
 
-    //IC03 - Current starting image
+    // IC03 - Current starting image
     unsigned int start_image_id = 0;
-
 
     // Method to find and select next best image to register.
     enum class ImageSelectionMethod {
@@ -152,7 +151,11 @@ class IncrementalMapper {
 
     bool Check() const;
 
+    // IC03
     void increase_start_image_id();
+
+    // IC03
+    void reset_start_image_id();
   };
 
   struct LocalBundleAdjustmentReport {
@@ -198,7 +201,7 @@ class IncrementalMapper {
   // Triangulate observations of image.
   size_t TriangulateImage(const IncrementalTriangulator::Options& tri_options,
                           const image_t image_id,
-                          std::string str_database_path = "");     //IC02
+                          std::string str_database_path = "");  // IC02
 
   // Retriangulate image pairs that should have common observations according to
   // the scene graph but don't due to drift, etc. To handle drift, the employed
@@ -206,7 +209,7 @@ class IncrementalMapper {
   // are too large, non-robust bundle adjustment will break down; if the
   // thresholds are too small, we cannot fix drift effectively.
   size_t Retriangulate(const IncrementalTriangulator::Options& tri_options,
-                        std::string str_database_path = "");   //IC02
+                       std::string str_database_path = "");  // IC02
 
   // Complete tracks by transitively following the scene graph correspondences.
   // This is especially effective after bundle adjustment, since many cameras

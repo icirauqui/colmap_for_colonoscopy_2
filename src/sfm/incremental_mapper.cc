@@ -96,8 +96,14 @@ bool IncrementalMapper::Options::Check() const {
   return true;
 }
 
+//IC03
 void IncrementalMapper::Options::increase_start_image_id() {
   start_image_id += frames_between_bundles;
+}
+
+//IC03
+void IncrementalMapper::Options::reset_start_image_id() {
+  start_image_id = 0;
 }
 
 IncrementalMapper::IncrementalMapper(const DatabaseCache* database_cache)
