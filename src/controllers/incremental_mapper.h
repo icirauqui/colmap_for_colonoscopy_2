@@ -136,12 +136,6 @@ struct IncrementalMapperOptions {
   // If reconstruction is provided as input, fix the existing image poses.
   bool fix_existing_images = false;
 
-  //IC03
-  //bool bundle_reconstruction = false;
-  //int frames_between_bundles = -1;
-  //int bundle_size = -1;
-  //int min_3Ds_for_validation = -1;
-
   IncrementalMapper::Options Mapper() const;
   IncrementalTriangulator::Options Triangulation() const;
   BundleAdjustmentOptions LocalBundleAdjustment() const;

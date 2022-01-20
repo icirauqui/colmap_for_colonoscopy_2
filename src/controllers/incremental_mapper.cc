@@ -320,10 +320,6 @@ void IncrementalMapperController::Run() {
 
   IncrementalMapper::Options init_mapper_options = options_->Mapper();
 
-  //IC03
-  //std::cout << "Init Mapper Options = " << init_mapper_options.frames_between_bundles << std::endl;
-  std::cout << "Test 2 " << init_mapper_options.bundle_size << std::endl;
-
   Reconstruct(init_mapper_options);
 
   const size_t kNumInitRelaxations = 2;
@@ -419,18 +415,18 @@ void IncrementalMapperController::Reconstruct(
                                                     "multiple are given.";
   }
 
-  //IC03_1 - if we are doing bundled reconstruction set num trials to inf
+  //IC03_1 - if we are doing bundled reconstruction set num trials to (totFrames-bundle_size)
   int max_num_trials = options_->init_num_trials;
   if (init_mapper_options.bundle_reconstruction){
-    max_num_trials = INT_MAX;
-    max_num_trials = database_cache_.NumImages() / init_mapper_options.frames_between_bundles;
+    //max_num_trials = INT_MAX;
+    //max_num_trials = database_cache_.NumImages() / init_mapper_options.frames_between_bundles;
+    max_num_trials = floor((database_cache_.NumImages() - init_mapper_options.bundle_size) / init_mapper_options.frames_between_bundles);
   }
   //IC03_2
 
   //IC03 for (int num_trials = 0; num_trials < options_->init_num_trials;
   //IC03     ++num_trials) {
   for (int num_trials = 0; num_trials < max_num_trials; ++num_trials) { //IC03
-    //IC03 std::cout << "num_trial/max_num_trials-start_image = " << num_trials << "-" << max_num_trials << "-" << init_mapper_options.start_image_id << std::endl;
     BlockIfPaused();
     if (IsStopped()) {
       break;
@@ -550,7 +546,6 @@ void IncrementalMapperController::Reconstruct(
         continue;     //chg
       }
 
-//IC03 std::cout << "num_trial/max_num_trials-start_image = " << num_trials << "-" << max_num_trials << "-" << init_mapper_options.start_image_id << std::endl;
       std::cout << std::endl << "Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "] = ";
       for (size_t ii = 0; ii < next_images.size(); ii++){
         std::cout << next_images[ii] << " ";

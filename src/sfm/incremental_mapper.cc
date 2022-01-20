@@ -235,7 +235,7 @@ std::vector<image_t> IncrementalMapper::FindNextImages(const Options& options,
   std::cout << std::endl << "NI mo [" << mapper_options->start_image_id << "-" << mapper_options->start_image_id + mapper_options->bundle_size << "] = ";
       
   unsigned int start_image_id_ = mapper_options->start_image_id;
-  unsigned int final_image_id_ = mapper_options->start_image_id + mapper_options->bundle_size;
+  unsigned int final_image_id_ = mapper_options->start_image_id + mapper_options->bundle_size - 1;
 
   // Append images that have not failed to register before.
   for (const auto& image : reconstruction_->Images()) {
@@ -855,7 +855,6 @@ std::vector<image_t> IncrementalMapper::FindFirstInitialImage(
   const size_t init_max_reg_trials =
       static_cast<size_t>(options.init_max_reg_trials);
 
-  std::cout << "FindFirstInitialImage = " << options.start_image_id << " " << options.bundle_size << std::endl; //IC03
   // Collect information of all not yet registered images with
   // correspondences.
   std::vector<ImageInfo> image_infos;
@@ -864,7 +863,7 @@ std::vector<image_t> IncrementalMapper::FindFirstInitialImage(
     //IC03 - only use images from active bundle
     if (options.bundle_reconstruction && (
         image.first < options.start_image_id || 
-        image.first > (options.start_image_id + options.bundle_size)))
+        image.first > (options.start_image_id + options.bundle_size - 1)))
       continue;
 
     // Only images with correspondences can be registered.
@@ -958,7 +957,7 @@ std::vector<image_t> IncrementalMapper::FindSecondInitialImage(
     //IC03 - only use images from active bundle
     if (options.bundle_reconstruction && (
         elem.first < options.start_image_id || 
-        elem.first > (options.start_image_id + options.bundle_size)))
+        elem.first > (options.start_image_id + options.bundle_size - 1)))
       continue;
 
     if (elem.second >= init_min_num_inliers) {
