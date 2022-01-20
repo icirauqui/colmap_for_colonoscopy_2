@@ -129,7 +129,7 @@ class IncrementalMapper {
     unsigned int frames_between_bundles = 5;
 
     // IC03 - Num of images in bundle
-    unsigned int bundle_size = 100;
+    unsigned int bundle_size = 40;
 
     // IC03 - Min number of 3D for bundled model validation
     unsigned int min_3Ds_for_validation = 30;
