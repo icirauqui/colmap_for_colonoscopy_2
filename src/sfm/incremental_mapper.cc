@@ -209,7 +209,8 @@ bool IncrementalMapper::FindInitialImagePair(const Options& options,
   return false;
 }
 
-std::vector<image_t> IncrementalMapper::FindNextImages(const Options& options) {
+std::vector<image_t> IncrementalMapper::FindNextImages(const Options& options, 
+                                                       const Options * mapper_options) {
   CHECK_NOTNULL(reconstruction_);
   CHECK(options.Check());
 
@@ -229,13 +230,25 @@ std::vector<image_t> IncrementalMapper::FindNextImages(const Options& options) {
   std::vector<std::pair<image_t, float>> image_ranks;
   std::vector<std::pair<image_t, float>> other_image_ranks;
 
+  //IC03
+  std::cout << std::endl << "NI o  [" << options.start_image_id << "-" << options.start_image_id + options.bundle_size << "] = ";
+  std::cout << std::endl << "NI mo [" << mapper_options->start_image_id << "-" << mapper_options->start_image_id + mapper_options->bundle_size << "] = ";
+      
+  unsigned int start_image_id_ = mapper_options->start_image_id;
+  unsigned int final_image_id_ = mapper_options->start_image_id + mapper_options->bundle_size;
+
   // Append images that have not failed to register before.
   for (const auto& image : reconstruction_->Images()) {
 
     //IC03 - only use images from active bundle
+    /*
     if (options.bundle_reconstruction && (
         image.first < options.start_image_id || 
         image.first > (options.start_image_id + options.bundle_size)))
+      continue;
+    */
+    if (options.bundle_reconstruction && (
+        image.first < start_image_id_ || image.first > final_image_id_))
       continue;
 
     // Skip images that are already registered.
@@ -842,6 +855,7 @@ std::vector<image_t> IncrementalMapper::FindFirstInitialImage(
   const size_t init_max_reg_trials =
       static_cast<size_t>(options.init_max_reg_trials);
 
+  std::cout << "FindFirstInitialImage = " << options.start_image_id << " " << options.bundle_size << std::endl; //IC03
   // Collect information of all not yet registered images with
   // correspondences.
   std::vector<ImageInfo> image_infos;

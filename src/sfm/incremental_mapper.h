@@ -129,7 +129,7 @@ class IncrementalMapper {
     unsigned int frames_between_bundles = 5;
 
     // IC03 - Num of images in bundle
-    unsigned int bundle_size = 15;
+    unsigned int bundle_size = 100;
 
     // IC03 - Min number of 3D for bundled model validation
     unsigned int min_3Ds_for_validation = 30;
@@ -188,7 +188,8 @@ class IncrementalMapper {
   // Find best next image to register in the incremental reconstruction. The
   // images should be passed to `RegisterNextImage`. This function automatically
   // ignores images that failed to registered for `max_reg_trials`.
-  std::vector<image_t> FindNextImages(const Options& options);
+  std::vector<image_t> FindNextImages(const Options& options,
+                                      const Options * mapper_options = nullptr);
 
   // Attempt to seed the reconstruction from an image pair.
   bool RegisterInitialImagePair(const Options& options, const image_t image_id1,

@@ -544,13 +544,13 @@ void IncrementalMapperController::Reconstruct(
       reg_next_success = false;
 
       const std::vector<image_t> next_images =
-          mapper.FindNextImages(options_->Mapper());
+          mapper.FindNextImages(options_->Mapper(), &init_mapper_options);      //IC03 add init_mapper_options
 
       if (next_images.empty()) {
         continue;     //chg
       }
+
 //IC03 std::cout << "num_trial/max_num_trials-start_image = " << num_trials << "-" << max_num_trials << "-" << init_mapper_options.start_image_id << std::endl;
-    
       std::cout << std::endl << "Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "] = ";
       for (size_t ii = 0; ii < next_images.size(); ii++){
         std::cout << next_images[ii] << " ";
