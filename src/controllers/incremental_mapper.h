@@ -136,6 +136,11 @@ struct IncrementalMapperOptions {
   // If reconstruction is provided as input, fix the existing image poses.
   bool fix_existing_images = false;
 
+  // IC03 - Bundles definition
+  int frames_between_bundles = 40;
+  int bundle_size = 40;
+  int min_3Ds_for_validation = 30;
+
   IncrementalMapper::Options Mapper() const;
   IncrementalTriangulator::Options Triangulation() const;
   BundleAdjustmentOptions LocalBundleAdjustment() const;
@@ -176,6 +181,9 @@ class IncrementalMapperController : public Thread {
   void Run();
   bool LoadDatabase();
   void Reconstruct(IncrementalMapper::Options& init_mapper_options);     //IC03 remove const from IncrementalMapperOptions
+
+  //IC03 transfer bundle parameters from controller to mapper
+  void UpdateMapper(IncrementalMapper::Options& init_mapper_options, bool bTerminate = false);
 
   const IncrementalMapperOptions* options_;
   const std::string image_path_;

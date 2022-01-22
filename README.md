@@ -26,10 +26,16 @@ IC02 - Draw IC01 points in images.
  * colmap/src/ui/image_viewer_widget.cc
  * colmap/src/ui/database_management_widget.cc
 
-IC03 - Add batched reconstruction option to gui (under development)
+IC03 - Add batched reconstruction option to gui
 
 * colmap/src/ui/main_window.h
 * colmap/src/ui/main_window.cc
+* colmap/src/controllers/incremental_mapper.h
+* colmap/src/controllers/incremental_mapper.cc
+* colmap/src/sfm/incremental_mapper.h
+* colmap/src/sfm/incremental_mapper.cc
+* colmap/src/estimators/two_view_geometry.cc
+* colmap/src/feature/sift.cc
 * colmap/src/ui/start_reconstruction_bundle_widget_.h    (new file)
 * colmap/src/ui/start_reconstruction_bundle_widget_.cc   (new file)
 
@@ -45,7 +51,11 @@ IC05 - Draw all keypoints segregating triangulated, draw projection of 3D points
 
 IC06 - Matching by epipolar geometry instead of image distortion.
 
+* colmap/src/estimators/two_view_geometry.cc
 * colmap/src/feature/matching.cc
+* colmap/src/sfm/incremental_mapper.h
+* colmap/src/feature/sift.h
+* colmap/src/feature/sift.cc
 
 
 

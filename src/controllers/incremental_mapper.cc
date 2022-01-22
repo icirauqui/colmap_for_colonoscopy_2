@@ -320,6 +320,9 @@ void IncrementalMapperController::Run() {
 
   IncrementalMapper::Options init_mapper_options = options_->Mapper();
 
+  //IC03
+  UpdateMapper(init_mapper_options,false);
+
   Reconstruct(init_mapper_options);
 
   const size_t kNumInitRelaxations = 2;
@@ -342,6 +345,10 @@ void IncrementalMapperController::Run() {
   }
 
   std::cout << std::endl;
+
+  //IC03
+  UpdateMapper(init_mapper_options,true);
+  
   GetTimer().PrintMinutes();
 }
 
@@ -392,6 +399,10 @@ void IncrementalMapperController::Reconstruct(
 
   //IC03
   const bool bBundle = init_mapper_options.bundle_reconstruction;
+
+  //IC03
+  std::cout << init_mapper_options.frames_between_bundles << std::endl;
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Main loop
@@ -694,6 +705,19 @@ void IncrementalMapperController::Reconstruct(
   }
   //IC03
   init_mapper_options.reset_start_image_id();
+}
+
+//IC03
+void IncrementalMapperController::UpdateMapper(IncrementalMapper::Options& init_mapper_options, bool bTerminate){
+  if (bTerminate){
+    init_mapper_options.bundle_reconstruction = false;
+  }
+  else{
+    init_mapper_options.bundle_reconstruction = true;
+    init_mapper_options.frames_between_bundles = options_->frames_between_bundles;
+    init_mapper_options.bundle_size = options_->bundle_size;
+    init_mapper_options.min_3Ds_for_validation = options_->min_3Ds_for_validation;
+  }
 }
 
 }  // namespace colmap

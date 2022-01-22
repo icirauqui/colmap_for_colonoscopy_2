@@ -46,11 +46,9 @@ ReconstructionBundleWidget::ReconstructionBundleWidget(MainWindow* main_window,
 
   setWindowTitle("Reconstruction Bundles");
 
-  //std::cout << main_window_->options_.mapper->frames_between_bundles << std::endl;
-
-  //AddOptionInt(&options_->mapper->frames_between_bundles,"Frames Between Bundles");
-  //AddOptionInt(&options_->mapper->bundle_size,"Bundle Size");
-  //AddOptionInt(&options_->mapper->min_3Ds_for_validation,"Min number of 3Ds");
+  AddOptionInt(&options_->mapper->frames_between_bundles,"Frames Between Bundles");
+  AddOptionInt(&options_->mapper->bundle_size,"Bundle Size");
+  AddOptionInt(&options_->mapper->min_3Ds_for_validation,"Min number of 3Ds");
 
   AddSpacer();
 
@@ -63,142 +61,40 @@ ReconstructionBundleWidget::ReconstructionBundleWidget(MainWindow* main_window,
   render_result_ = new QAction(this);
   connect(render_result_, &QAction::triggered, this,
           &ReconstructionBundleWidget::RenderResult, Qt::QueuedConnection);
-
 }
 
 
 
 void ReconstructionBundleWidget::Run() {
-
-  std::cout << " Run reconstruction bundle widget " << std::endl;
-  
-  //std::cout << options_->mapper->frames_between_bundles << std::endl;
-  //std::cout << options_->mapper->bundle_size << std::endl;
-  //std::cout << options_->mapper->min_3Ds_for_validation << std::endl;
-
-
-
-  // Start new reconstruction.
-  //main_window_->CreateControllers();
-  //main_window_->timer_.Restart();
-  //main_window_->mapper_controller_->Start();
-  //main_window_->DisableBlockingActions();
-
-
-
-  //if (!ExistsDir(options_->workspace_path)) {
-  //  QMessageBox::critical(this, "", tr("Invalid workspace folder"));
-  //  return;
-  //}
-
-  //if (!ExistsDir(*options_->image_path)) {
-  //  QMessageBox::critical(this, "", tr("Invalid image folder"));
-  //  return;
-  //}
-
-  //std::cout << options_->workspace_path << std::endl;
-  //std::cout << options_->image_path << std::endl;
-
-
-  //main_window_->reconstruction_manager_.Clear();
-  //main_window_->reconstruction_manager_widget_->Update();
-  //main_window_->RenderClear();
-  //main_window_->RenderNow();
-
-/*
-
-  std::cout << "Controller" << std::endl;
-
-  BundleReconstructionController* controller = 
-      new BundleReconstructionController(&main_window_->reconstruction_manager_);
-
-  std::cout << "Callback" << std::endl;
-
-  controller->AddCallback(Thread::FINISHED_CALLBACK, [this]() { render_result_->trigger(); });
-
-  std::cout << "StartThread" << std::endl;
-
-  thread_control_widget_->StartThread("Reconstructing...", true, controller);
-
-  std::cout << "Thread started" << std::endl;
-
-*/
-
-  /*
-  if (!mapper_controller_->IsStarted() && !options_.Check()) {
-    ShowInvalidProjectError();
+  if (!main_window_->mapper_controller_->IsStarted() && !main_window_->options_.Check()) {
+    main_window_->ShowInvalidProjectError();
     return;
   }
 
-  if (mapper_controller_->IsFinished() && HasSelectedReconstruction()) {
+  if (main_window_->mapper_controller_->IsFinished() && main_window_->HasSelectedReconstruction()) {
     QMessageBox::critical(this, "",
                           tr("Reset reconstruction before starting."));
     return;
   }
 
-  if (mapper_controller_->IsStarted()) {
+  if (main_window_->mapper_controller_->IsStarted()) {
     // Resume existing reconstruction.
-    timer_.Resume();
-    mapper_controller_->Resume();
+    main_window_->timer_.Resume();
+    main_window_->mapper_controller_->Resume();
   } else {
     // Start new reconstruction.
-    CreateControllers();
-    timer_.Restart();
-    mapper_controller_->Start();
-    action_reconstruction_start_bundle_->setText(tr("Resume bundled reconstruction"));
+    main_window_->CreateControllers();
+    main_window_->timer_.Restart();
+    main_window_->mapper_controller_->Start();
+    main_window_->action_reconstruction_start_->setText(tr("Resume reconstruction"));
   }
 
-  DisableBlockingActions();
-  action_reconstruction_pause_->setEnabled(true);
-  */
-
-
-
-
-
-/*
-  CHECK_NOTNULL(reconstruction_);
-
-  WriteOptions();
-
-  Thread* thread = new BundleAdjustmentController(*options_, reconstruction_);
-  thread->AddCallback(Thread::FINISHED_CALLBACK,
-                      [this]() { render_action_->trigger(); });
-
-  // Normalize scene for numerical stability and
-  // to avoid large scale changes in viewer.
-  reconstruction_->Normalize();
-
-  thread_control_widget_->StartThread("Bundle adjusting...", true, thread);
-  */
+  main_window_->DisableBlockingActions();
+  main_window_->action_reconstruction_pause_->setEnabled(true);
 }
 
 
 void ReconstructionBundleWidget::RenderResult() {
-  //if (main_window_->reconstruction_manager_.Size() > 0) {
-  //  main_window_->reconstruction_manager_widget_->Update();
-  //  main_window_->RenderClear();
-  //  main_window_->RenderNow();
-  //}
-
-/*
-  if (options_.sparse) {
-    QMessageBox::information(
-        this, "",
-        tr("Imported the reconstructed sparse models for visualization. The "
-           "models were also exported to the <i>sparse</i> sub-folder in the "
-           "workspace."));
-  }
-
-  if (options_.dense) {
-    QMessageBox::information(
-        this, "",
-        tr("To visualize the reconstructed dense point cloud, navigate to the "
-           "<i>dense</i> sub-folder in your workspace with <i>File > Import "
-           "model from...</i>. To visualize the meshed model, you must use an "
-           "external viewer such as Meshlab."));
-  }
-  */
 }
 
 

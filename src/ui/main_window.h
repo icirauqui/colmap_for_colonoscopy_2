@@ -151,7 +151,6 @@ class MainWindow : public QMainWindow {
 
   ReconstructionManager reconstruction_manager_;
   std::unique_ptr<IncrementalMapperController> mapper_controller_;
-  std::unique_ptr<IncrementalMapperController> mapper_controller_bundle_; //IC03
 
   Timer timer_;
 

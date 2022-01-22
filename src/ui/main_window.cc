@@ -92,10 +92,6 @@ void MainWindow::closeEvent(QCloseEvent* event) {
       mapper_controller_->Stop();
       mapper_controller_->Wait();
     }
-    if (mapper_controller_bundle_){     //IC03
-      mapper_controller_bundle_->Stop();
-      mapper_controller_bundle_->Wait();
-    }
 
     log_widget_->close();
     event->accept();
@@ -252,7 +248,6 @@ void MainWindow::CreateActions() {
                   tr("Start reconstruction bundled"), this);
   connect(action_reconstruction_start_bundle_, &QAction::triggered, this,
           &MainWindow::ReconstructionStartBundle);
-  action_reconstruction_start_bundle_->setEnabled(false);
   blocking_actions_.push_back(action_reconstruction_start_bundle_);
 
   action_reconstruction_step_ =
@@ -271,7 +266,7 @@ void MainWindow::CreateActions() {
   blocking_actions_.push_back(action_reconstruction_pause_);
 
   action_reconstruction_reset_ =
-      new QAction(QIcon(":/media/reconstruction-reset.png"),
+      new QAction(QIcon(":/media/reconstruction-reset-1.png"),
                   tr("Reset reconstruction"), this);
   connect(action_reconstruction_reset_, &QAction::triggered, this,
           &MainWindow::ReconstructionOverwrite);
@@ -501,6 +496,7 @@ void MainWindow::CreateToolbar() {
   reconstruction_toolbar_->addAction(action_reconstruction_start_bundle_); //IC03
   reconstruction_toolbar_->addAction(action_reconstruction_step_);
   reconstruction_toolbar_->addAction(action_reconstruction_pause_);
+  reconstruction_toolbar_->addAction(action_reconstruction_reset_);   //IC03
   reconstruction_toolbar_->addAction(action_reconstruction_options_);
   reconstruction_toolbar_->addAction(action_bundle_adjustment_);
   reconstruction_toolbar_->addAction(action_dense_reconstruction_);
@@ -546,10 +542,6 @@ void MainWindow::CreateControllers() {
     mapper_controller_->Stop();
     mapper_controller_->Wait();
   }
-  if (mapper_controller_bundle_){   //IC03  
-    mapper_controller_bundle_->Stop();
-    mapper_controller_bundle_->Wait();
-  }
 
   mapper_controller_.reset(new IncrementalMapperController(
       options_.mapper.get(), *options_.image_path, *options_.database_path,
@@ -582,42 +574,6 @@ void MainWindow::CreateControllers() {
           action_reconstruction_reset_->trigger();
         }
       });
-
-
-
-  //IC03_1
-  mapper_controller_bundle_.reset(new IncrementalMapperController(
-      options_.mapper.get(), *options_.image_path, *options_.database_path,
-      &reconstruction_manager_));
-  mapper_controller_bundle_->AddCallback(
-      IncrementalMapperController::INITIAL_IMAGE_PAIR_REG_CALLBACK, [this]() {
-        if (!mapper_controller_bundle_->IsStopped()) {
-          action_render_now_->trigger();
-        }
-      });
-  mapper_controller_bundle_->AddCallback(
-      IncrementalMapperController::NEXT_IMAGE_REG_CALLBACK, [this]() {
-        if (!mapper_controller_bundle_->IsStopped()) {
-          action_render_->trigger();
-        }
-      });
-  mapper_controller_bundle_->AddCallback(
-      IncrementalMapperController::LAST_IMAGE_REG_CALLBACK, [this]() {
-        if (!mapper_controller_bundle_->IsStopped()) {
-          action_render_now_->trigger();
-        }
-      });
-  mapper_controller_bundle_->AddCallback(
-      IncrementalMapperController::FINISHED_CALLBACK, [this]() {
-        if (!mapper_controller_bundle_->IsStopped()) {
-          action_render_now_->trigger();
-          action_reconstruction_finish_->trigger();
-        }
-        if (reconstruction_manager_.Size() == 0) {
-          action_reconstruction_reset_->trigger();
-        }
-      });
-  //IC03_2
 }
 
 void MainWindow::ProjectNew() {
@@ -1002,6 +958,8 @@ void MainWindow::ReconstructionStart() {
     timer_.Restart();
     mapper_controller_->Start();
     action_reconstruction_start_->setText(tr("Resume reconstruction"));
+    action_reconstruction_start_bundle_->setEnabled(false);   //IC03
+    action_reconstruction_start_bundle_->setText(tr("Resume reconstruction"));   //IC03
   }
 
   DisableBlockingActions();
@@ -1019,15 +977,10 @@ void MainWindow::ReconstructionStep() {
   ReconstructionStart();
   ReconstructionPause();
   action_reconstruction_step_->setEnabled(true);
-  
-  std::cout << " a " << std::endl;
 }
 
 //IC03
 void MainWindow::ReconstructionStartBundle() {
-  //start_reconstruction_bundle_widget_->show();
-  //start_reconstruction_bundle_widget_->raise();
-
   if (!mapper_controller_->IsStarted() && !options_.Check()) {
     ShowInvalidProjectError();
     return;
@@ -1039,23 +992,20 @@ void MainWindow::ReconstructionStartBundle() {
     return;
   }
 
-  std::cout << " aa " << std::endl;
-  //std::cout << "Test 1 " << options_.mapper->frames_between_bundles << std::endl;
-
-
   if (mapper_controller_->IsStarted()) {
     // Resume existing reconstruction.
     timer_.Resume();
     mapper_controller_->Resume();
   } else {
     // Start new reconstruction.
-    CreateControllers();
-    timer_.Restart();
-    mapper_controller_->Start();
-    action_reconstruction_start_->setText(tr("Resume reconstruction"));
+    action_reconstruction_start_->setEnabled(false);
+    start_reconstruction_bundle_widget_->show();
+    start_reconstruction_bundle_widget_->raise();
+    action_reconstruction_start_bundle_->setText(tr("Resume reconstruction"));
   }
 
-
+  DisableBlockingActions();
+  action_reconstruction_pause_->setEnabled(true);
 }
 
 void MainWindow::ReconstructionPause() {
@@ -1077,6 +1027,7 @@ void MainWindow::ReconstructionFinish() {
   action_reconstruction_start_->setEnabled(false);
   action_reconstruction_step_->setEnabled(false);
   action_reconstruction_pause_->setEnabled(false);
+  start_reconstruction_bundle_widget_->setEnabled(false);   //IC03
 }
 
 void MainWindow::ReconstructionReset() {
@@ -1090,6 +1041,7 @@ void MainWindow::ReconstructionReset() {
 
   EnableBlockingActions();
   action_reconstruction_start_->setText(tr("Start reconstruction"));
+  action_reconstruction_start_bundle_->setText(tr("Start reconstruction bundled"));   //IC03
   action_reconstruction_pause_->setEnabled(false);
 
   RenderClear();

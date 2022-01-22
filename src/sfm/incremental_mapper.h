@@ -126,7 +126,7 @@ class IncrementalMapper {
     int num_threads = -1;
 
     // IC03 - Frames between image bundles for model computing
-    unsigned int frames_between_bundles = 5;
+    unsigned int frames_between_bundles = 40;
 
     // IC03 - Num of images in bundle
     unsigned int bundle_size = 40;
@@ -135,7 +135,7 @@ class IncrementalMapper {
     unsigned int min_3Ds_for_validation = 30;
 
     // IC03 - Enable bundled reconstruction
-    bool bundle_reconstruction = true;
+    bool bundle_reconstruction = false;
 
     // IC03 - Current starting image
     unsigned int start_image_id = 0;
