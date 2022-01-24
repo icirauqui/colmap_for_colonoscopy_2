@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Sat Jan 22 17:20:53 2022
+# Make data base, printed on Mon Jan 24 19:41:37 2022
 
 # Variables
 
@@ -49,7 +49,7 @@ VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupp
 # environment
 _ = /usr/share/code/code
 # environment
-JOURNAL_STREAM = 8:64525
+JOURNAL_STREAM = 8:58727
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile
@@ -75,7 +75,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 ROS_PACKAGE_PATH = /opt/ros/noetic/share:/home/icirauqui/workspace/ORB_SLAM2/Examples/ROS/:/home/icirauqui/workspace/ORB_SLAM2_E/Examples/ROS/:/home/icirauqui/workspace/BagFrom/Images
 # environment
-MANAGERPID = 3364
+MANAGERPID = 3280
 # environment
 ROS_PYTHON_VERSION = 3
 # environment
@@ -95,7 +95,7 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-SESSION_MANAGER = local/icirauqui-Precision-7550:@/tmp/.ICE-unix/3715,unix/icirauqui-Precision-7550:/tmp/.ICE-unix/3715
+SESSION_MANAGER = local/icirauqui-Precision-7550:@/tmp/.ICE-unix/3629,unix/icirauqui-Precision-7550:/tmp/.ICE-unix/3629
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -107,7 +107,7 @@ VSCODE_LOG_STACK = false
 # environment
 VSCODE_CRASH_REPORTER_START_OPTIONS = {"companyName":"Microsoft","productName":"VSCode","submitURL":"appcenter://code?aid=fba07a4d-84bd-4fc8-a125-9640fc8ce171&uid=7a49b794-3cef-4569-95e9-f3f0202cb6aa&iid=7a49b794-3cef-4569-95e9-f3f0202cb6aa&sid=7a49b794-3cef-4569-95e9-f3f0202cb6aa","uploadToServer":true}
 # environment
-INVOCATION_ID = ac9b4d4ba7624d55820712c6ebee2f47
+INVOCATION_ID = f184536b738440d3b4034db202ac0c91
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -119,7 +119,7 @@ ROS_DISTRO = noetic
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 11029
+GIO_LAUNCHED_DESKTOP_FILE_PID = 5681
 # automatic
 %F = $(notdir $%)
 # environment
@@ -131,7 +131,7 @@ PWD = /home/icirauqui/workspace_tfm/colmap_for_colonoscopy_2
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 3681
+SSH_AGENT_PID = 3595
 # environment
 PKG_CONFIG_PATH = /opt/ros/noetic/lib/pkgconfig
 # environment
@@ -173,7 +173,7 @@ SHLVL = 0
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-4c259c04-629a-44bf-abf6-8a3a171c5c11.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-f20d5418-0e2e-4912-aa6e-da9e5c18f74c.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -253,7 +253,7 @@ LC_ADDRESS = es_ES.UTF-8
 # environment
 LANG = C
 # environment
-VSCODE_PID = 11029
+VSCODE_PID = 5681
 # variable set hash-table stats:
 # Load=121/1024=12%, Rehash=0, Collisions=20/143=14%
 
@@ -295,6 +295,7 @@ makefile:
 #  Failed to be updated.
 
 # Not a target:
+ 
 .DEFAULT:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -320,8 +321,7 @@ GNUmakefile:
 
 # strcache performance: lookups = 33 / hit rate = 9%
 # hash-table stats:
- 
 # Load=30/8192=0%, Rehash=0, Collisions=1/33=3%
-# Finished Make data base on Sat Jan 22 17:20:53 2022
+# Finished Make data base on Mon Jan 24 19:41:37 2022
 
  

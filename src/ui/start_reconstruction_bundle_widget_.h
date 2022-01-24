@@ -38,7 +38,6 @@
 #include <QtWidgets>
 
 //#include "base/reconstruction.h"
-#include "controllers/bundle_reconstruction.h"
 #include "ui/options_widget.h"
 #include "ui/thread_control_widget.h"
 #include "util/option_manager.h"
@@ -62,12 +61,6 @@ class ReconstructionBundleWidget : public OptionsWidget {
   //ThreadControlWidget* thread_control_widget_;
   QAction* render_action_;
   QAction* render_result_;
-
-
-  int frames_between_bundles_ = 5;
-  int bundle_size_ = 10;
-  int min_3Ds_for_validation_ = 50;
-
 };
 
 }  // namespace colmap

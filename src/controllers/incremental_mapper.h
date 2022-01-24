@@ -137,9 +137,10 @@ struct IncrementalMapperOptions {
   bool fix_existing_images = false;
 
   // IC03 - Bundles definition
-  int frames_between_bundles = 40;
-  int bundle_size = 40;
-  int min_3Ds_for_validation = 30;
+  bool bundle_reconstruction = false;
+  int frames_between_bundles = 5;
+  int bundle_size = 20;
+  int min_3Ds_for_validation = 200;
 
   IncrementalMapper::Options Mapper() const;
   IncrementalTriangulator::Options Triangulation() const;
@@ -148,7 +149,6 @@ struct IncrementalMapperOptions {
   ParallelBundleAdjuster::Options ParallelGlobalBundleAdjustment() const;
 
   bool Check() const;
-
  private:
   friend class OptionManager;
   friend class MapperGeneralOptionsWidget;
@@ -158,6 +158,7 @@ struct IncrementalMapperOptions {
   friend class MapperBundleAdjustmentOptionsWidget;
   friend class MapperFilteringOptionsWidget;
   friend class ReconstructionOptionsWidget;
+  friend class ReconstructionBundleWidget;    //IC03
   IncrementalMapper::Options mapper;
   IncrementalTriangulator::Options triangulation;
 };

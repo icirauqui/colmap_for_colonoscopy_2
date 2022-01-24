@@ -954,6 +954,7 @@ void MainWindow::ReconstructionStart() {
     mapper_controller_->Resume();
   } else {
     // Start new reconstruction.
+    options_.mapper->bundle_reconstruction = false; //IC03
     CreateControllers();
     timer_.Restart();
     mapper_controller_->Start();

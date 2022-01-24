@@ -33,7 +33,7 @@
 
 #include "ui/bundle_adjustment_widget.h"
 
-#include "controllers/bundle_adjustment.h"
+#include "controllers/incremental_mapper.h"
 #include "ui/main_window.h"
 
 namespace colmap {
@@ -49,7 +49,8 @@ ReconstructionBundleWidget::ReconstructionBundleWidget(MainWindow* main_window,
   AddOptionInt(&options_->mapper->frames_between_bundles,"Frames Between Bundles");
   AddOptionInt(&options_->mapper->bundle_size,"Bundle Size");
   AddOptionInt(&options_->mapper->min_3Ds_for_validation,"Min number of 3Ds");
-
+  //AddOptionBool(&options_->mapper->bundle_reconstruction,"bundle_reconstruction");
+  
   AddSpacer();
 
   QPushButton* run_button = new QPushButton(tr("Run"), this);
@@ -66,6 +67,10 @@ ReconstructionBundleWidget::ReconstructionBundleWidget(MainWindow* main_window,
 
 
 void ReconstructionBundleWidget::Run() {
+
+  options_->mapper->bundle_reconstruction = true;
+  WriteOptions();
+
   if (!main_window_->mapper_controller_->IsStarted() && !main_window_->options_.Check()) {
     main_window_->ShowInvalidProjectError();
     return;
@@ -91,6 +96,8 @@ void ReconstructionBundleWidget::Run() {
 
   main_window_->DisableBlockingActions();
   main_window_->action_reconstruction_pause_->setEnabled(true);
+
+  hide();
 }
 
 

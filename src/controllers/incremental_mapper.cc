@@ -401,8 +401,11 @@ void IncrementalMapperController::Reconstruct(
   const bool bBundle = init_mapper_options.bundle_reconstruction;
 
   //IC03
-  std::cout << init_mapper_options.frames_between_bundles << std::endl;
-
+  //std::cout << "controller " << init_mapper_options.frames_between_bundles << " "
+  //                           << init_mapper_options.bundle_size << " "
+  //                           << init_mapper_options.min_3Ds_for_validation << " "
+  //                           << init_mapper_options.bundle_reconstruction << " " 
+  //                           << options_->bundle_reconstruction << std::endl;
 
   //////////////////////////////////////////////////////////////////////////////
   // Main loop
@@ -557,12 +560,11 @@ void IncrementalMapperController::Reconstruct(
         continue;     //chg
       }
 
-      std::cout << std::endl << "Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "] = ";
-      for (size_t ii = 0; ii < next_images.size(); ii++){
-        std::cout << next_images[ii] << " ";
-      }
-      std::cout << std::endl << std::endl;
-
+      //IC03
+      //std::cout << std::endl << "Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "] = ";
+      //for (size_t ii = 0; ii < next_images.size(); ii++)
+      //  std::cout << next_images[ii] << " ";
+      //std::cout << std::endl << std::endl;
 
       for (size_t reg_trial = 0; reg_trial < next_images.size(); ++reg_trial) {
         const image_t next_image_id = next_images[reg_trial];
@@ -682,11 +684,9 @@ void IncrementalMapperController::Reconstruct(
     //IC03
     init_mapper_options.increase_start_image_id();
 
-    if ((options_->multiple_models && 
-         reconstruction.NumRegImages() < min_model_size) ||
+    if ((options_->multiple_models && reconstruction.NumRegImages() < min_model_size) ||
         reconstruction.NumRegImages() == 0 ||
-        (init_mapper_options.bundle_reconstruction &&   //IC03
-         reconstruction.NumPoints3D() < init_mapper_options.min_3Ds_for_validation)) {    //IC03
+        (init_mapper_options.bundle_reconstruction && reconstruction.NumPoints3D() < init_mapper_options.min_3Ds_for_validation)) {    //IC03
       mapper.EndReconstruction(kDiscardReconstruction);
       reconstruction_manager_->Delete(reconstruction_idx);
     } else {
@@ -713,7 +713,7 @@ void IncrementalMapperController::UpdateMapper(IncrementalMapper::Options& init_
     init_mapper_options.bundle_reconstruction = false;
   }
   else{
-    init_mapper_options.bundle_reconstruction = true;
+    init_mapper_options.bundle_reconstruction = options_->bundle_reconstruction;
     init_mapper_options.frames_between_bundles = options_->frames_between_bundles;
     init_mapper_options.bundle_size = options_->bundle_size;
     init_mapper_options.min_3Ds_for_validation = options_->min_3Ds_for_validation;
