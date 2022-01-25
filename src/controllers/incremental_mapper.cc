@@ -409,11 +409,13 @@ void IncrementalMapperController::Reconstruct(
   //                           << init_mapper_options.bundle_reconstruction << " " 
   //                           << options_->bundle_reconstruction << std::endl;
   if (bBundle) {
-    std::cout << "Bundled Reconstruction" << std::endl
+    std::cout << std::endl 
+              << "Bundled Reconstruction" << std::endl
               << "  frames_between_bundles = " << init_mapper_options.frames_between_bundles << std::endl
               << "  bundle_size            = " << init_mapper_options.bundle_size << std::endl
               << "  min_3Ds_for_validation = " << init_mapper_options.min_3Ds_for_validation << std::endl
-              << "  num_relaxations        = " << num_relaxations << std::endl;
+              << "  num_relaxations        = " << num_relaxations << std::endl
+              << std::endl;
   }
   //IC03_2
 
@@ -424,21 +426,19 @@ void IncrementalMapperController::Reconstruct(
 
   IncrementalMapper mapper(&database_cache_);
 
-  // Is there a sub-model before we start the reconstruction? I.e. the user
-  // has imported an existing reconstruction.
-  const bool initial_reconstruction_given = reconstruction_manager_->Size() > 0;
 
-  //IC03
-  //if (bBundle){
-  //  CHECK_LE(reconstruction_manager_->Size(), 0) << "Can only start if no previous "
-  //                                                  "reconstruction, reset before "
-  //                                                  "proceeding.";
-  //}
+  //IC03_1 only check for non bundled reconstruction
+  bool initial_reconstruction_given = false;
   if (!bBundle) {
+    // Is there a sub-model before we start the reconstruction? I.e. the user
+    // has imported an existing reconstruction.
+    initial_reconstruction_given = reconstruction_manager_->Size() > 0;     // don't make const
+
     CHECK_LE(reconstruction_manager_->Size(), 1) << "Can only resume from a "
                                                     "single reconstruction, but "
                                                     "multiple are given.";
   }
+  //IC03_2
 
   //IC03_1 - if we are doing bundled reconstruction set num trials to (totFrames-bundle_size)
   int max_num_trials = options_->init_num_trials;
