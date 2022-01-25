@@ -259,6 +259,9 @@ class IncrementalMapper {
   // Clear the collection of changed 3D points.
   void ClearModifiedPoints3D();
 
+  // IC03 clear Registered images, allow overlapping of bundles
+  void ClearRegisteredImages() const;
+
  private:
   // Find seed images for incremental reconstruction. Suitable seed images have
   // a large number of correspondences and have camera calibration priors. The

@@ -327,7 +327,8 @@ void IncrementalMapperController::Run() {
 
   const size_t kNumInitRelaxations = 2;
   for (size_t i = 0; i < kNumInitRelaxations; ++i) {
-    if (reconstruction_manager_->Size() > 0 || IsStopped()) {
+    if (!options_->bundle_reconstruction &&   //IC03
+        (reconstruction_manager_->Size() > 0 || IsStopped())) {
       break;
     }
 
@@ -335,7 +336,8 @@ void IncrementalMapperController::Run() {
     init_mapper_options.init_min_num_inliers /= 2;
     Reconstruct(init_mapper_options);
 
-    if (reconstruction_manager_->Size() > 0 || IsStopped()) {
+    if (!options_->bundle_reconstruction &&   //IC03
+        (reconstruction_manager_->Size() > 0 || IsStopped())) {
       break;
     }
 
@@ -456,11 +458,19 @@ void IncrementalMapperController::Reconstruct(
     Reconstruction& reconstruction =
         reconstruction_manager_->Get(reconstruction_idx);
 
+    //IC03 track number of constraint relaxations before initialization
+    //if (options_->bundle_reconstruction){
+    //  
+    //}
+
     mapper.BeginReconstruction(&reconstruction);
 
     ////////////////////////////////////////////////////////////////////////////
     // Register initial pair
     ////////////////////////////////////////////////////////////////////////////
+
+    //IC03
+    //mapper.ClearRegisteredImages();
 
     if (reconstruction.NumRegImages() == 0) {
       image_t image_id1 = static_cast<image_t>(options_->init_image_id1);
@@ -509,6 +519,9 @@ void IncrementalMapperController::Reconstruct(
         reconstruction_manager_->Delete(reconstruction_idx);
         continue;    //chg
       }
+
+      //IC03
+      std::cout << "IC03 new reconstruction [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "]" << std::endl;
 
       AdjustGlobalBundle(*options_, &mapper);
       FilterPoints(*options_, &mapper);
@@ -561,10 +574,10 @@ void IncrementalMapperController::Reconstruct(
       }
 
       //IC03
-      //std::cout << std::endl << "Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "] = ";
-      //for (size_t ii = 0; ii < next_images.size(); ii++)
-      //  std::cout << next_images[ii] << " ";
-      //std::cout << std::endl << std::endl;
+      std::cout << std::endl << "IC03 Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "] = ";
+      for (size_t ii = 0; ii < next_images.size(); ii++)
+        std::cout << next_images[ii] << " ";
+      std::cout << std::endl << std::endl;
 
       for (size_t reg_trial = 0; reg_trial < next_images.size(); ++reg_trial) {
         const image_t next_image_id = next_images[reg_trial];

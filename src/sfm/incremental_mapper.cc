@@ -837,6 +837,19 @@ void IncrementalMapper::ClearModifiedPoints3D() {
   triangulator_->ClearModifiedPoints3D();
 }
 
+//IC03
+/*
+void IncrementalMapper::ClearRegisteredImages() const {
+  bool bRegistered = false;
+  for (const auto& image : reconstruction_->Images()) {
+    // Skip images that are already registered.
+    if (image.second.IsRegistered()) {
+      image.second.SetRegistered(bRegistered);
+    }
+  }
+}
+*/
+
 std::vector<image_t> IncrementalMapper::FindFirstInitialImage(
     const Options& options) const {
   // Struct to hold meta-data for ranking images.
