@@ -323,7 +323,7 @@ void IncrementalMapperController::Run() {
   //IC03
   UpdateMapper(init_mapper_options,false);
 
-  Reconstruct(init_mapper_options);
+  Reconstruct(init_mapper_options);  //IC03 add num relaxations
 
   const size_t kNumInitRelaxations = 2;
   for (size_t i = 0; i < kNumInitRelaxations; ++i) {
@@ -334,7 +334,7 @@ void IncrementalMapperController::Run() {
 
     std::cout << "  => Relaxing the initialization constraints." << std::endl;
     init_mapper_options.init_min_num_inliers /= 2;
-    Reconstruct(init_mapper_options);
+    Reconstruct(init_mapper_options, 1);  //IC03 add num relaxations
 
     if (!options_->bundle_reconstruction &&   //IC03
         (reconstruction_manager_->Size() > 0 || IsStopped())) {
@@ -343,7 +343,7 @@ void IncrementalMapperController::Run() {
 
     std::cout << "  => Relaxing the initialization constraints." << std::endl;
     init_mapper_options.init_min_tri_angle /= 2;
-    Reconstruct(init_mapper_options);
+    Reconstruct(init_mapper_options, 2);  //IC03 add num relaxations
   }
 
   std::cout << std::endl;
@@ -396,7 +396,8 @@ bool IncrementalMapperController::LoadDatabase() {
 }
 
 void IncrementalMapperController::Reconstruct(
-    IncrementalMapper::Options& init_mapper_options) {     //IC03 remove const from IncrementalMapperOptions
+    IncrementalMapper::Options& init_mapper_options,    //IC03 remove const from IncrementalMapperOptions
+    int num_relaxations) {                              //IC03 track number of relaxations
   const bool kDiscardReconstruction = true;
 
   //IC03
@@ -434,8 +435,6 @@ void IncrementalMapperController::Reconstruct(
   //IC03_1 - if we are doing bundled reconstruction set num trials to (totFrames-bundle_size)
   int max_num_trials = options_->init_num_trials;
   if (init_mapper_options.bundle_reconstruction){
-    //max_num_trials = INT_MAX;
-    //max_num_trials = database_cache_.NumImages() / init_mapper_options.frames_between_bundles;
     max_num_trials = floor((database_cache_.NumImages() - init_mapper_options.bundle_size) / init_mapper_options.frames_between_bundles);
   }
   //IC03_2
@@ -459,10 +458,10 @@ void IncrementalMapperController::Reconstruct(
         reconstruction_manager_->Get(reconstruction_idx);
 
     //IC03 track number of constraint relaxations before initialization
-    //if (options_->bundle_reconstruction){
-    //  
-    //}
-
+    if (options_->bundle_reconstruction){
+      reconstruction.SetRelaxations(num_relaxations);
+    }
+    
     mapper.BeginReconstruction(&reconstruction);
 
     ////////////////////////////////////////////////////////////////////////////

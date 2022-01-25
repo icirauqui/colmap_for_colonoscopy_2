@@ -181,7 +181,7 @@ class IncrementalMapperController : public Thread {
  private:
   void Run();
   bool LoadDatabase();
-  void Reconstruct(IncrementalMapper::Options& init_mapper_options);     //IC03 remove const from IncrementalMapperOptions
+  void Reconstruct(IncrementalMapper::Options& init_mapper_options, int num_relaxations = 0);     //IC03 remove const from IncrementalMapperOptions, track num relaxations
 
   //IC03 transfer bundle parameters from controller to mapper
   void UpdateMapper(IncrementalMapper::Options& init_mapper_options, bool bTerminate = false);

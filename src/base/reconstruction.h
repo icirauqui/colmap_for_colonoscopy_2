@@ -104,6 +104,10 @@ class Reconstruction {
   inline const EIGEN_STL_UMAP(point3D_t, class Point3D) & Points3Dd() const;  //IC05
   inline const std::unordered_map<image_pair_t, ImagePairStat>& ImagePairs()
       const;
+    
+  // IC03 get/set number of relaxations in initialization
+  inline size_t GetRelaxations() const;
+  inline void SetRelaxations(int num_relaxations);
 
   // Identifiers of all 3D points.
   std::unordered_set<point3D_t> Point3DIds() const;
@@ -483,6 +487,9 @@ class Reconstruction {
 
   // IC05 Total number of added 3Dd points, used to generate unique identifiers.
   point3D_t num_added_points3Dd_;
+
+  // IC03 Num of relaxations in initialization constraints
+  int num_relaxations_ = 0;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -545,6 +552,14 @@ Reconstruction::ImagePairStat& Reconstruction::ImagePair(
     const image_t image_id1, const image_t image_id2) {
   const auto pair_id = Database::ImagePairToPairId(image_id1, image_id2);
   return image_pair_stats_.at(pair_id);
+}
+
+//IC03
+inline size_t Reconstruction::GetRelaxations() const { return num_relaxations_; }
+
+//IC03
+inline void Reconstruction::SetRelaxations(int num_relaxations) {
+  num_relaxations_ = num_relaxations;
 }
 
 const EIGEN_STL_UMAP(camera_t, Camera) & Reconstruction::Cameras() const {
