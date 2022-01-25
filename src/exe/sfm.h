@@ -35,6 +35,7 @@ int RunAutomaticReconstructor(int argc, char** argv);
 int RunBundleAdjuster(int argc, char** argv);
 int RunColorExtractor(int argc, char** argv);
 int RunMapper(int argc, char** argv);
+int RunMapperBundle(int argc, char** argv);     //IC07
 int RunHierarchicalMapper(int argc, char** argv);
 int RunPointFiltering(int argc, char** argv);
 int RunPointTriangulator(int argc, char** argv);

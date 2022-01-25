@@ -140,6 +140,7 @@ int main(int argc, char** argv) {
   commands.emplace_back("image_undistorter_standalone",
                         &RunImageUndistorterStandalone);
   commands.emplace_back("mapper", &RunMapper);
+  commands.emplace_back("mapper_bundle", &RunMapperBundle);  //IC07
   commands.emplace_back("matches_importer", &RunMatchesImporter);
   commands.emplace_back("model_aligner", &RunModelAligner);
   commands.emplace_back("model_analyzer", &RunModelAnalyzer);

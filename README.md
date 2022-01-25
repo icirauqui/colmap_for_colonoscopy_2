@@ -57,6 +57,10 @@ IC06 - Matching by epipolar geometry instead of image distortion.
 * colmap/src/feature/sift.h
 * colmap/src/feature/sift.cc
 
+IC07 - Add bundled mapper option to command line
+
+* colmap/src/exe/colmap.cc
+
 
 
 About (fork)

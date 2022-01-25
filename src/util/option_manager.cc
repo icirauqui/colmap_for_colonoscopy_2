@@ -539,6 +539,12 @@ void OptionManager::AddMapperOptions() {
                               &mapper->snapshot_images_freq);
   AddAndRegisterDefaultOption("Mapper.fix_existing_images",
                               &mapper->fix_existing_images);
+  AddAndRegisterDefaultOption("Mapper.frames_between_bundles",    //IC07
+                              &mapper->frames_between_bundles);   //IC07
+  AddAndRegisterDefaultOption("Mapper.bundle_size",               //IC07
+                              &mapper->bundle_size);              //IC07
+  AddAndRegisterDefaultOption("Mapper.min_3Ds_for_validation",    //IC07
+                              &mapper->min_3Ds_for_validation);   //IC07
   AddAndRegisterDefaultOption("Mapper.bundle_reconstruction",     //IC03
                               &mapper->bundle_reconstruction);    //IC03
 

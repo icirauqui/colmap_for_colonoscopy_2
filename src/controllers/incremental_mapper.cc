@@ -400,15 +400,23 @@ void IncrementalMapperController::Reconstruct(
     int num_relaxations) {                              //IC03 track number of relaxations
   const bool kDiscardReconstruction = true;
 
-  //IC03
+  //IC03_1
   const bool bBundle = init_mapper_options.bundle_reconstruction;
 
-  //IC03
   //std::cout << "controller " << init_mapper_options.frames_between_bundles << " "
   //                           << init_mapper_options.bundle_size << " "
   //                           << init_mapper_options.min_3Ds_for_validation << " "
   //                           << init_mapper_options.bundle_reconstruction << " " 
   //                           << options_->bundle_reconstruction << std::endl;
+  if (bBundle) {
+    std::cout << "Bundled Reconstruction" << std::endl
+              << "  frames_between_bundles = " << init_mapper_options.frames_between_bundles << std::endl
+              << "  bundle_size            = " << init_mapper_options.bundle_size << std::endl
+              << "  min_3Ds_for_validation = " << init_mapper_options.min_3Ds_for_validation << std::endl
+              << "  num_relaxations        = " << num_relaxations << std::endl;
+  }
+  //IC03_2
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Main loop
@@ -421,12 +429,12 @@ void IncrementalMapperController::Reconstruct(
   const bool initial_reconstruction_given = reconstruction_manager_->Size() > 0;
 
   //IC03
-  if (bBundle){
-    CHECK_LE(reconstruction_manager_->Size(), 0) << "Can only start if no previous "
-                                                    "reconstruction, reset before "
-                                                    "proceeding.";
-  }
-  else{
+  //if (bBundle){
+  //  CHECK_LE(reconstruction_manager_->Size(), 0) << "Can only start if no previous "
+  //                                                  "reconstruction, reset before "
+  //                                                  "proceeding.";
+  //}
+  if (!bBundle) {
     CHECK_LE(reconstruction_manager_->Size(), 1) << "Can only resume from a "
                                                     "single reconstruction, but "
                                                     "multiple are given.";
