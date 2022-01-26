@@ -1030,6 +1030,9 @@ bool Reconstruction::ExportNVM(const std::string& path,
     } else {
       std::cout << "WARNING: NVM only supports `SIMPLE_RADIAL` camera model."
                 << std::endl;
+
+      file.close();   //IC07
+
       return false;
     }
 
@@ -1085,6 +1088,8 @@ bool Reconstruction::ExportNVM(const std::string& path,
     file << line_string << std::endl;
   }
 
+  file.close();   //IC07
+
   return true;
 }
 
@@ -1119,6 +1124,9 @@ bool Reconstruction::ExportCam(const std::string& path,
       std::cout << "WARNING: CAM only supports `SIMPLE_RADIAL` and `RADIAL` "
                    "camera model."
                 << std::endl;
+
+      file.close();   //IC07
+
       return false;
     }
 
@@ -1132,6 +1140,8 @@ bool Reconstruction::ExportCam(const std::string& path,
     file << camera.MeanFocalLength() / max_image_size << " " << k1 << " " << k2
          << " 1.0 " << camera.PrincipalPointX() / camera.Width() << " "
          << camera.PrincipalPointY() / camera.Height() << std::endl;
+  
+    file.close();   //IC07
   }
 
   return true;
@@ -1289,6 +1299,9 @@ bool Reconstruction::ExportBundler(const std::string& path,
       std::cout << "WARNING: Bundler only supports `SIMPLE_RADIAL` and "
                    "`RADIAL` camera models."
                 << std::endl;
+
+      file.close();   //IC07
+
       return false;
     }
 
@@ -1345,6 +1358,8 @@ bool Reconstruction::ExportBundler(const std::string& path,
 
     file << line_string << std::endl;
   }
+
+  file.close();   //IC07
 
   return true;
 }
@@ -2281,6 +2296,8 @@ void Reconstruction::WriteCamerasText(const std::string& path) const {
 
     file << line_string << std::endl;
   }
+
+  file.close();   //IC07
 }
 
 void Reconstruction::WriteImagesText(const std::string& path) const {
@@ -2351,6 +2368,8 @@ void Reconstruction::WriteImagesText(const std::string& path) const {
     line_string = line_string.substr(0, line_string.size() - 1);
     file << line_string << std::endl;
   }
+
+  file.close();   //IC07
 }
 
 void Reconstruction::WritePoints3DText(const std::string& path) const {
@@ -2389,6 +2408,8 @@ void Reconstruction::WritePoints3DText(const std::string& path) const {
 
     file << line_string << std::endl;
   }
+
+  file.close();   //IC07
 }
 
 //IC01
@@ -2428,6 +2449,8 @@ void Reconstruction::WritePoints3DdText(const std::string& path) const {
 
     file << line_string << std::endl;
   }
+
+  file.close();   //IC07
 }
 
 void Reconstruction::WriteCamerasBinary(const std::string& path) const {
@@ -2445,6 +2468,8 @@ void Reconstruction::WriteCamerasBinary(const std::string& path) const {
       WriteBinaryLittleEndian<double>(&file, param);
     }
   }
+
+  file.close(); //IC07
 }
 
 void Reconstruction::WriteImagesBinary(const std::string& path) const {
@@ -2484,6 +2509,8 @@ void Reconstruction::WriteImagesBinary(const std::string& path) const {
       WriteBinaryLittleEndian<point3D_t>(&file, point2D.Point3DdId()); //IC05
     }
   }
+
+  file.close(); //IC07
 }
 
 void Reconstruction::WritePoints3DBinary(const std::string& path) const {
@@ -2508,6 +2535,8 @@ void Reconstruction::WritePoints3DBinary(const std::string& path) const {
       WriteBinaryLittleEndian<point2D_t>(&file, track_el.point2D_idx);
     }
   }
+
+  file.close(); //IC07
 }
 
 //IC01
@@ -2533,6 +2562,8 @@ void Reconstruction::WritePoints3DdBinary(const std::string& path) const {
       WriteBinaryLittleEndian<point2D_t>(&file, track_el.point2D_idx);
     }
   }
+
+  file.close(); //IC07
 }
 
 void Reconstruction::SetObservationAsTriangulated(
@@ -2624,6 +2655,8 @@ void Reconstruction::GeneratePositives(Reconstruction reconstruction,
     line.str("");
     line.clear();
   }
+
+  file.close();   //IC07
 }
 
 }  // namespace colmap
