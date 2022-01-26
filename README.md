@@ -63,6 +63,9 @@ IC07 - Add bundled mapper option to command line
 * colmap/src/exe/sfm.h
 * colmap/src/exe/sfm.cc
 * colmap/src/util/option_manager.cc
+* colmap/src/base/reconstruction.cc
+* colmap/src/exe/reconstruction.cc
+
 
 
 
