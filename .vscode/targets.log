@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+ 
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Jan 31 20:49:08 2022
+# Make data base, printed on Mon Jan 31 21:04:47 2022
 
 # Variables
 
@@ -28,6 +30,8 @@ XDG_SESSION_TYPE = x11
 VSCODE_LOG_NATIVE = false
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
+# environment
+IM_CONFIG_PHASE = 1
 # automatic
 @D = $(patsubst %/,%,$(dir $@))
 # environment
@@ -41,11 +45,11 @@ CURDIR := /home/icirauqui/workspace_tfm/colmap_for_colonoscopy_2
 # makefile
 SHELL = /bin/sh
 # environment
-VTE_VERSION = 6003
-# environment
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
-JOURNAL_STREAM = 8:59879
+_ = /usr/share/code/code
+# environment
+JOURNAL_STREAM = 8:54451
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile
@@ -53,13 +57,11 @@ MAKEFILE_LIST :=
 # automatic
 @F = $(notdir $@)
 # environment
-IM_CONFIG_PHASE = 1
+GIO_LAUNCHED_DESKTOP_FILE = /usr/share/applications/code.desktop
 # environment
 USERNAME = icirauqui
 # environment
 MAKELEVEL := 0
-# environment
-MANDATORY_PATH = /usr/share/gconf/ubuntu.mandatory.path
 # environment
 XDG_DATA_DIRS = /usr/share/ubuntu:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop
 # environment
@@ -69,11 +71,9 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-_ = /usr/bin/code
+ROS_PACKAGE_PATH = /opt/ros/noetic/share
 # environment
-ROS_PACKAGE_PATH = /opt/ros/noetic/share:/home/icirauqui/workspace/ORB_SLAM2/Examples/ROS/:/home/icirauqui/workspace/ORB_SLAM2_E/Examples/ROS/:/home/icirauqui/workspace/BagFrom/Images
-# environment
-MANAGERPID = 3464
+MANAGERPID = 1648
 # environment
 ROS_PYTHON_VERSION = 3
 # environment
@@ -81,17 +81,19 @@ LESSOPEN = | /usr/bin/lesspipe %s
 # environment
 LC_NAME = es_ES.UTF-8
 # environment
-VSCODE_CWD = /home/icirauqui/workspace_tfm/colmap_for_colonoscopy_2
+VSCODE_CWD = /home/icirauqui
 # default
 MAKE_HOST := x86_64-pc-linux-gnu
 # environment
-PATH = /usr/local/cuda-11.2/bin:/opt/ros/noetic/bin:/home/icirauqui/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
+PATH = /home/icirauqui/.local/bin:/usr/local/cuda-11.2/bin:/usr/local/cuda-11.2/bin:/opt/ros/noetic/bin:/home/icirauqui/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 # environment
 XDG_SESSION_DESKTOP = ubuntu
 # environment
 GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
-SESSION_MANAGER = local/icirauqui-Precision-7550:@/tmp/.ICE-unix/3819,unix/icirauqui-Precision-7550:/tmp/.ICE-unix/3819
+GJS_DEBUG_OUTPUT = stderr
+# environment
+SESSION_MANAGER = local/XPS15:@/tmp/.ICE-unix/1912,unix/XPS15:/tmp/.ICE-unix/1912
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -101,19 +103,21 @@ XDG_MENU_PREFIX = gnome-
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_CRASH_REPORTER_START_OPTIONS = {"companyName":"Microsoft","productName":"VSCode","submitURL":"appcenter://code?aid=fba07a4d-84bd-4fc8-a125-9640fc8ce171&uid=7a49b794-3cef-4569-95e9-f3f0202cb6aa&iid=7a49b794-3cef-4569-95e9-f3f0202cb6aa&sid=7a49b794-3cef-4569-95e9-f3f0202cb6aa","uploadToServer":true}
+VSCODE_CRASH_REPORTER_START_OPTIONS = {"companyName":"Microsoft","productName":"VSCode","submitURL":"appcenter://code?aid=fba07a4d-84bd-4fc8-a125-9640fc8ce171&uid=7f79b37b-5392-4554-8b2f-769116d20623&iid=7f79b37b-5392-4554-8b2f-769116d20623&sid=7f79b37b-5392-4554-8b2f-769116d20623","uploadToServer":true}
 # environment
-INVOCATION_ID = bdeda2db352f47a1b59f58822269cc6c
+INVOCATION_ID = b4e8c8fb1f5b44dcafb68a67c29eb8f3
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
 CMAKE_PREFIX_PATH = /opt/ros/noetic
 # environment
-LS_COLORS = rs=0:di=01;34:ln=01;36:mh=00:pi=40;33:so=01;35:do=01;35:bd=40;33;01:cd=40;33;01:or=40;31;01:mi=00:su=37;41:sg=30;43:ca=30;41:tw=30;42:ow=34;42:st=37;44:ex=01;32:*.tar=01;31:*.tgz=01;31:*.arc=01;31:*.arj=01;31:*.taz=01;31:*.lha=01;31:*.lz4=01;31:*.lzh=01;31:*.lzma=01;31:*.tlz=01;31:*.txz=01;31:*.tzo=01;31:*.t7z=01;31:*.zip=01;31:*.z=01;31:*.dz=01;31:*.gz=01;31:*.lrz=01;31:*.lz=01;31:*.lzo=01;31:*.xz=01;31:*.zst=01;31:*.tzst=01;31:*.bz2=01;31:*.bz=01;31:*.tbz=01;31:*.tbz2=01;31:*.tz=01;31:*.deb=01;31:*.rpm=01;31:*.jar=01;31:*.war=01;31:*.ear=01;31:*.sar=01;31:*.rar=01;31:*.alz=01;31:*.ace=01;31:*.zoo=01;31:*.cpio=01;31:*.7z=01;31:*.rz=01;31:*.cab=01;31:*.wim=01;31:*.swm=01;31:*.dwm=01;31:*.esd=01;31:*.jpg=01;35:*.jpeg=01;35:*.mjpg=01;35:*.mjpeg=01;35:*.gif=01;35:*.bmp=01;35:*.pbm=01;35:*.pgm=01;35:*.ppm=01;35:*.tga=01;35:*.xbm=01;35:*.xpm=01;35:*.tif=01;35:*.tiff=01;35:*.png=01;35:*.svg=01;35:*.svgz=01;35:*.mng=01;35:*.pcx=01;35:*.mov=01;35:*.mpg=01;35:*.mpeg=01;35:*.m2v=01;35:*.mkv=01;35:*.webm=01;35:*.ogm=01;35:*.mp4=01;35:*.m4v=01;35:*.mp4v=01;35:*.vob=01;35:*.qt=01;35:*.nuv=01;35:*.wmv=01;35:*.asf=01;35:*.rm=01;35:*.rmvb=01;35:*.flc=01;35:*.avi=01;35:*.fli=01;35:*.flv=01;35:*.gl=01;35:*.dl=01;35:*.xcf=01;35:*.xwd=01;35:*.yuv=01;35:*.cgm=01;35:*.emf=01;35:*.ogv=01;35:*.ogx=01;35:*.aac=00;36:*.au=00;36:*.flac=00;36:*.m4a=00;36:*.mid=00;36:*.midi=00;36:*.mka=00;36:*.mp3=00;36:*.mpc=00;36:*.ogg=00;36:*.ra=00;36:*.wav=00;36:*.oga=00;36:*.opus=00;36:*.spx=00;36:*.xspf=00;36:
+LS_COLORS = 
 # environment
 ROS_DISTRO = noetic
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
+# environment
+GIO_LAUNCHED_DESKTOP_FILE_PID = 41471
 # automatic
 %F = $(notdir $%)
 # environment
@@ -125,7 +129,7 @@ PWD = /home/icirauqui/workspace_tfm/colmap_for_colonoscopy_2
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 3785
+SSH_AGENT_PID = 1878
 # environment
 PKG_CONFIG_PATH = /opt/ros/noetic/lib/pkgconfig
 # environment
@@ -137,21 +141,17 @@ VSCODE_AMD_ENTRYPOINT = vs/workbench/services/extensions/node/extensionHostProce
 # environment
 HOME = /home/icirauqui
 # environment
-LD_LIBRARY_PATH = /usr/local/cuda-11.2/lib64:/opt/ros/noetic/lib
+LD_LIBRARY_PATH = /usr/local/cuda-11.2/lib64:/usr/local/cuda-11.2/lib64:/opt/ros/noetic/lib
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
-VSCODE_CLI = 1
-# environment
-VSCODE_CODE_CACHE_PATH = /home/icirauqui/.config/Code/CachedData/3866c3553be8b268c8a7f8c0482c0c0177aa8bfa
+VSCODE_CODE_CACHE_PATH = /home/icirauqui/.config/Code/CachedData/899d46d82c4c95423fb7e10e68eba52050e30ba3
 # environment
 LOGNAME = icirauqui
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
 # automatic
 +F = $(notdir $+)
-# environment
-ELECTRON_NO_ATTACH_CONSOLE = 1
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # environment
@@ -160,8 +160,6 @@ GNOME_DESKTOP_SESSION_ID = this-is-deprecated
 ^D = $(patsubst %/,%,$(dir $^))
 # environment
 LC_TIME = es_ES.UTF-8
-# environment
-COLORTERM = truecolor
 # default
 MAKE = $(MAKE_COMMAND)
 # default
@@ -169,11 +167,11 @@ MAKECMDGOALS := all
 # environment
 QT_IM_MODULE = ibus
 # environment
-SHLVL = 1
+SHLVL = 0
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-fa112a6e-5f31-4390-a5ac-e902de6140af.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-496645aa-90b5-4228-bbda-78e58bb707ac.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -184,20 +182,20 @@ LC_MONETARY = es_ES.UTF-8
 .DEFAULT_GOAL := 
 # environment
 XDG_CURRENT_DESKTOP = Unity
+# environment
+ROSLISP_PACKAGE_DIRECTORIES = 
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # environment
 LC_TELEPHONE = es_ES.UTF-8
 # default
 MAKE_COMMAND := make
-# environment
-OLDPWD = /home/icirauqui/workspace_tfm
 # default
 .VARIABLES := 
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-337bfe8b-1.59.1-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-337bfe8b-1.63.2-main.sock
 # environment
 PYTHONPATH = /opt/ros/noetic/lib/python3/dist-packages
 # makefile
@@ -218,14 +216,10 @@ GDK_BACKEND = x11
 LC_PAPER = es_ES.UTF-8
 # environment
 QT_ACCESSIBILITY = 1
-# environment
-DEFAULTS_PATH = /usr/share/gconf/ubuntu.default.path
 # default
 MAKEFILES := 
 # environment
 LC_NUMERIC = es_ES.UTF-8
-# environment
-VSCODE_BROWSER_CODE_LOADING = bypassHeatCheck
 # automatic
 <F = $(notdir $<)
 # environment
@@ -233,13 +227,13 @@ ELECTRON_RUN_AS_NODE = 1
 # environment
 LC_MEASUREMENT = es_ES.UTF-8
 # environment
+ROS_MASTER_URI = http://localhost:11311
+# environment
 LC_ALL = C
 # environment
-GNOME_TERMINAL_SCREEN = /org/gnome/Terminal/screen/386c1350_3254_4cec_8fbd_0608f54da5b9
+GJS_DEBUG_TOPICS = JS ERROR;JS LOG
 # automatic
 ^F = $(notdir $^)
-# environment
-GNOME_TERMINAL_SERVICE = :1.133
 # default
 SUFFIXES := 
 # environment
@@ -257,11 +251,9 @@ LC_ADDRESS = es_ES.UTF-8
 # environment
 LANG = C
 # environment
-TERM = xterm-256color
-# environment
-VSCODE_PID = 30384
+VSCODE_PID = 41471
 # variable set hash-table stats:
-# Load=125/1024=12%, Rehash=0, Collisions=20/147=14%
+# Load=120/1024=12%, Rehash=0, Collisions=20/142=14%
 
 # Pattern-specific Variable Values
 
@@ -269,16 +261,13 @@ VSCODE_PID = 30384
 
 # Directories
 
-# . (device 66312, inode 18350426): 22 files, no impossibilities.
+# . (device 66311, inode 11215133): 22 files, no impossibilities.
 
 # 22 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
 # No implicit rules.
- 
-make: *** No rule to make target 'all'.  Stop.
- 
 
 # Files
 
@@ -315,6 +304,7 @@ GNUmakefile:
 #  File does not exist.
 #  File has been updated.
 #  Failed to be updated.
+ 
 
 # files hash-table stats:
 # Load=6/1024=1%, Rehash=0, Collisions=0/15=0%
@@ -330,6 +320,6 @@ GNUmakefile:
 # strcache performance: lookups = 33 / hit rate = 9%
 # hash-table stats:
 # Load=30/8192=0%, Rehash=0, Collisions=1/33=3%
-# Finished Make data base on Mon Jan 31 20:49:08 2022
+# Finished Make data base on Mon Jan 31 21:04:47 2022
 
  

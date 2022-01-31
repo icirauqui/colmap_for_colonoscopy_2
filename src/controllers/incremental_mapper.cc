@@ -491,7 +491,11 @@ void IncrementalMapperController::Reconstruct(
 
           mapper.EndReconstruction(kDiscardReconstruction);
           reconstruction_manager_->Delete(reconstruction_idx);
-          continue;    //chg
+
+          if (bBundle)
+            continue;    //IC03
+          else 
+            break;
         }
       } else {
         if (!reconstruction.ExistsImage(image_id1) ||
@@ -519,11 +523,15 @@ void IncrementalMapperController::Reconstruct(
                   << std::endl;
         mapper.EndReconstruction(kDiscardReconstruction);
         reconstruction_manager_->Delete(reconstruction_idx);
-        continue;    //chg
+        if (bBundle)
+          continue;    //IC03
+        else
+          break;
       }
 
       //IC03
-      std::cout << "IC03 new reconstruction [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "]" << std::endl;
+      if (bBundle)
+        std::cout << "IC03 new reconstruction [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "]" << std::endl;
 
       AdjustGlobalBundle(*options_, &mapper);
       FilterPoints(*options_, &mapper);
@@ -537,7 +545,7 @@ void IncrementalMapperController::Reconstruct(
         // If both initial images are manually specified, there is no need for
         // further initialization trials.
         if (options_->init_image_id1 != -1 && options_->init_image_id2 != -1) {
-          break;    //chk
+          break;
         } else {
           continue;
         }
@@ -572,14 +580,19 @@ void IncrementalMapperController::Reconstruct(
           mapper.FindNextImages(options_->Mapper(), &init_mapper_options);      //IC03 add init_mapper_options
 
       if (next_images.empty()) {
-        continue;     //chg
+        if (bBundle)
+          continue;     //IC03
+        else 
+          break;
       }
 
       //IC03
-      std::cout << std::endl << "IC03 Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "] = ";
-      for (size_t ii = 0; ii < next_images.size(); ii++)
-        std::cout << next_images[ii] << " ";
-      std::cout << std::endl << std::endl;
+      if (bBundle){
+        std::cout << std::endl << "IC03 Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "] = ";
+        for (size_t ii = 0; ii < next_images.size(); ii++)
+          std::cout << next_images[ii] << " ";
+        std::cout << std::endl << std::endl;
+      }
 
       for (size_t reg_trial = 0; reg_trial < next_images.size(); ++reg_trial) {
         const image_t next_image_id = next_images[reg_trial];
@@ -635,19 +648,19 @@ void IncrementalMapperController::Reconstruct(
 
           // If initial pair fails to continue for some time,
           // abort and try different initial pair.
-          /* IC03_1 updated to allow models with minimal size
-          IC03 const size_t kMinNumInitialRegTrials = 30;
-          if (reg_trial >= kMinNumInitialRegTrials &&
-              reconstruction.NumRegImages() <
-                  static_cast<size_t>(options_->min_model_size)) {
-            break;    //chg
+          /* IC03_1 updated to allow models with minimal size*/
+          const size_t kMinNumInitialRegTrials = 30;
+          if (!bBundle &&   //IC03
+              reg_trial >= kMinNumInitialRegTrials &&
+              reconstruction.NumRegImages() < static_cast<size_t>(options_->min_model_size)) {
+            break;
           }
-          */
-          const size_t kMinNumInitialRegTrials = init_mapper_options.bundle_size - 1;
-          if (reg_trial >= kMinNumInitialRegTrials &&
-              reconstruction.NumRegImages() <
-                  static_cast<size_t>(init_mapper_options.bundle_size / 3)) {
-            continue;    //chg
+          
+          const size_t kMinNumInitialRegTrialsBundle = init_mapper_options.bundle_size - 1;
+          if (bBundle && 
+              reg_trial >= kMinNumInitialRegTrialsBundle &&
+              reconstruction.NumRegImages() < static_cast<size_t>(init_mapper_options.bundle_size / 3)) {
+            continue;
           }
           //IC03_2
 
@@ -655,13 +668,13 @@ void IncrementalMapperController::Reconstruct(
         }
       }
 
-      /*IC03_1 allow extreme model overlap
+      /*IC03_1 allow extreme model overlap, break only if not bundled reconstruction*/
       const size_t max_model_overlap =
           static_cast<size_t>(options_->max_model_overlap);
       if (mapper.NumSharedRegImages() >= max_model_overlap) {
-        continue;  //chg
+        if (!bBundle) //IC03
+          break;  
       }
-      */
 
       // If no image could be registered, try a single final global iterative
       // bundle adjustment and try again to register one image. If this fails
@@ -679,7 +692,7 @@ void IncrementalMapperController::Reconstruct(
     if (IsStopped()) {
       const bool kDiscardReconstruction = false;
       mapper.EndReconstruction(kDiscardReconstruction);
-      break;    //chk
+      break;
     }
 
     // Only run final global BA, if last incremental BA was not global.
@@ -715,7 +728,7 @@ void IncrementalMapperController::Reconstruct(
     if (initial_reconstruction_given || !options_->multiple_models ||
         reconstruction_manager_->Size() >= max_num_models ||
         mapper.NumTotalRegImages() >= database_cache_.NumImages() - 1) {
-      break;    //chk
+      break;
     }
   }
   //IC03
