@@ -402,12 +402,7 @@ void IncrementalMapperController::Reconstruct(
 
   //IC03_1
   const bool bBundle = init_mapper_options.bundle_reconstruction;
-
-  //std::cout << "controller " << init_mapper_options.frames_between_bundles << " "
-  //                           << init_mapper_options.bundle_size << " "
-  //                           << init_mapper_options.min_3Ds_for_validation << " "
-  //                           << init_mapper_options.bundle_reconstruction << " " 
-  //                           << options_->bundle_reconstruction << std::endl;
+  
   if (bBundle) {
     std::cout << std::endl 
               << "Bundled Reconstruction" << std::endl
