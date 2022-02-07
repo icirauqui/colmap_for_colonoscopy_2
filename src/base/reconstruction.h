@@ -303,6 +303,7 @@ class Reconstruction {
   // Read data from text or binary file. Prefer binary data if it exists.
   void Read(const std::string& path);
   void Write(const std::string& path) const;
+  void WriteBundle(const std::string& path) const;  //IC03
 
   // Read data from binary/text file.
   void ReadText(const std::string& path);

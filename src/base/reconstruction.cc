@@ -935,6 +935,12 @@ void Reconstruction::Read(const std::string& path) {
 
 void Reconstruction::Write(const std::string& path) const { WriteBinary(path); }
 
+//IC03  Default write Binary and Text for further processing
+void Reconstruction::WriteBundle(const std::string& path) const { 
+  WriteBinary(path);
+  WriteText(path);
+}
+
 void Reconstruction::ReadText(const std::string& path) {
   ReadCamerasText(JoinPaths(path, "cameras.txt"));
   ReadImagesText(JoinPaths(path, "images.txt"));
