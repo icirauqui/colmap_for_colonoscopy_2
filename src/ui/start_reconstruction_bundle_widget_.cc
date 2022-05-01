@@ -69,6 +69,9 @@ ReconstructionBundleWidget::ReconstructionBundleWidget(MainWindow* main_window,
 void ReconstructionBundleWidget::Run() {
 
   options_->mapper->bundle_reconstruction = true;
+  options_->bundle_adjustment->refine_extra_params = false; //IC08
+  options_->bundle_adjustment->refine_focal_length = false; //IC08
+
   WriteOptions();
 
   if (!main_window_->mapper_controller_->IsStarted() && !main_window_->options_.Check()) {
