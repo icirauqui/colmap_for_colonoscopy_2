@@ -213,6 +213,9 @@ if(CUDA_FOUND)
         # Do not show warnings if the architectures are deprecated.
         set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -Wno-deprecated-gpu-targets")
 
+        # Enforce C++14, required if using CUDA 11.7
+        set(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS} -std=c++14")        
+
         message(STATUS "Enabling CUDA support (version: ${CUDA_VERSION_STRING},"
                        " archs: ${CUDA_ARCH_FLAGS_readable})")
     else()
