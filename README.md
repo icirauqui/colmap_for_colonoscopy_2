@@ -66,8 +66,8 @@ IC07 - Add bundled mapper option to command line
 * colmap/src/base/reconstruction.cc
 * colmap/src/exe/reconstruction.cc
 
-
-
+IC08 - Deliverable review and fixes
+* colmap/src/base/reconstruction.cc
 
 
 About (fork)

@@ -828,6 +828,10 @@ size_t Reconstruction::FilterAllPoints3D(const double max_reproj_error,
       FilterPoints3DWithLargeReprojectionError(max_reproj_error, point3D_ids, database_); //IC02 add pointer to database
   num_filtered +=
       FilterPoints3DWithSmallTriangulationAngle(min_tri_angle, point3D_ids, database_); //IC02 add pointer to database
+
+  delete database_; //IC08 delete database
+  database_ = nullptr; //IC08 set pointer to null
+
   return num_filtered;
 }
 

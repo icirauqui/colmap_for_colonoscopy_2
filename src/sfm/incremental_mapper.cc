@@ -814,6 +814,7 @@ size_t IncrementalMapper::FilterPoints(const Options& options) {
                                             options.filter_min_tri_angle,
                                             db_tmp_2); //IC02 add pointer to database
   delete db_tmp_2;  //IC02
+  db_tmp_2 = NULL;  //IC02
 }
 
 const Reconstruction& IncrementalMapper::GetReconstruction() const {

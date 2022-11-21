@@ -289,7 +289,7 @@ void Database::Open(const std::string& path) {
 
 
   // Don't wait for the operating system to write the changes to disk
-  SQLITE3_EXEC(database_, "PRAGMA synchronous=OFF", nullptr);   //OFF
+  SQLITE3_EXEC(database_, "PRAGMA synchronous=ON", nullptr);   //OFF
 
   // Use faster journaling mode
   SQLITE3_EXEC(database_, "PRAGMA journal_mode=WAL", nullptr);    //WAL
