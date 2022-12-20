@@ -421,6 +421,8 @@ void IncrementalMapperController::Reconstruct(
 
   IncrementalMapper mapper(&database_cache_);
 
+  //IC03
+  int num_reconstructions = 0;
 
   //IC03_1 only check for non bundled reconstruction
   bool initial_reconstruction_given = false;
@@ -441,6 +443,10 @@ void IncrementalMapperController::Reconstruct(
     max_num_trials = floor((database_cache_.NumImages() - init_mapper_options.bundle_size) / init_mapper_options.frames_between_bundles);
   }
   //IC03_2
+
+  //IC03
+  if (bBundle)
+      std::cout << "IC03 blank bundled reconstruction [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "]" << std::endl;
 
   //IC03 for (int num_trials = 0; num_trials < options_->init_num_trials;
   //IC03     ++num_trials) {
@@ -466,6 +472,11 @@ void IncrementalMapperController::Reconstruct(
     }
     
     mapper.BeginReconstruction(&reconstruction);
+
+    //IC03
+    if (bBundle)
+      std::cout << "IC03 img range bundled reconstruction " << num_reconstructions << " [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "]" << std::endl;
+
 
     ////////////////////////////////////////////////////////////////////////////
     // Register initial pair
@@ -523,8 +534,10 @@ void IncrementalMapperController::Reconstruct(
                   << std::endl;
         mapper.EndReconstruction(kDiscardReconstruction);
         reconstruction_manager_->Delete(reconstruction_idx);
-        if (bBundle)
+        if (bBundle) {
           continue;    //IC03
+          num_reconstructions++;  //IC03
+        }
         else
           break;
       }
@@ -733,6 +746,27 @@ void IncrementalMapperController::Reconstruct(
   }
   //IC03
   init_mapper_options.reset_start_image_id();
+
+  //IC03 Report reconstructions info
+  std::cout << "Reconstructions info:" << std::endl;
+  int num_reconstructions_completed = reconstruction_manager_->Size();
+  std::cout << " - Number of reconstructions completed: " << num_reconstructions_completed << std::endl;
+  for (int i = 0; i < num_reconstructions_completed; i++){
+    const Reconstruction& reconstruction = reconstruction_manager_->Get(i);
+    std::cout << "    - Reconstruction " << i << ": " << reconstruction.NumRegImages() << " images, " 
+                                                      << reconstruction.NumPoints3D() << " 3D points." << std::endl;
+    std::vector<int> image_ids = reconstruction.ImageIds();
+    std::cout << "      - Image ids: ";
+    for (int j = 0; j < image_ids.size(); j++){
+      std::cout << image_ids[j] << " ";
+    }
+    std::cout << std::endl;
+  }
+  //  for (int j = 0; j < reconstruction.NumRegImages(); j++){
+  //    const Image& image = reconstruction.Image(j);
+  //    std::cout << "      - Image " << image.ImageId() << ": " << image.Name() << std::endl;
+  //  }
+  //}
 }
 
 //IC03

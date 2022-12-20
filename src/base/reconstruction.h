@@ -78,7 +78,17 @@ class Reconstruction {
   inline size_t NumImages() const;
   inline size_t NumRegImages() const;
   inline size_t NumPoints3D() const;
-  inline size_t NumImagePairs() const;
+  inline size_t NumImagePairs() const;  //IC03
+
+  // Get object info
+  inline std::vector<int> ImageIds() const {
+    std::vector<int> img_idx;
+
+    for (const auto& image : images_)
+      img_idx.push_back(image.second.ImageId());
+
+    return img_idx;
+  }
 
   // Get const objects.
   inline const class Camera& Camera(const camera_t camera_id) const;
