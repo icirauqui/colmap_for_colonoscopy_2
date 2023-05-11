@@ -69,6 +69,7 @@ class ReconstructionManager {
   // If the option manager object is not null, the options are written
   // to each respective reconstruction folder as well.
   void Write(const std::string& path, const OptionManager* options) const;
+  void WriteText(const std::string& path, const OptionManager* options) const; //IC09
 
  private:
   NON_COPYABLE(ReconstructionManager)

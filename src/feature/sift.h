@@ -140,7 +140,7 @@ struct SiftMatchingOptions {
   double max_error = 4.0;
 
   // IC06 maximum epipolar angle in rad for geometric verification 1 deg
-  double max_error_rad = 0.0174533;
+  double max_error_rad = 0.0174533/2;
 
   // Confidence threshold for geometric verification.
   double confidence = 0.999;

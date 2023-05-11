@@ -92,6 +92,7 @@ class MainWindow : public QMainWindow {
   void ExportAll();
   void ExportAs();
   void ExportAsText();
+  void ExportAsTextAll(); //IC09
 
   void FeatureExtraction();
   void FeatureMatching();
@@ -195,6 +196,7 @@ class MainWindow : public QMainWindow {
   QAction* action_export_all_;
   QAction* action_export_as_;
   QAction* action_export_as_text_;
+  QAction* action_export_as_text_all_;  //IC09
   QAction* action_quit_;
 
   QAction* action_feature_extraction_;
