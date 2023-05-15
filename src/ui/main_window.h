@@ -87,6 +87,7 @@ class MainWindow : public QMainWindow {
   void ProjectSave();
   void ProjectSaveAs();
   void Import();
+  void ImportMultiple();
   void ImportFrom();
   void Export();
   void ExportAll();
@@ -191,6 +192,7 @@ class MainWindow : public QMainWindow {
   QAction* action_project_save_;
   QAction* action_project_save_as_;
   QAction* action_import_;
+  QAction* action_import_multiple_;
   QAction* action_import_from_;
   QAction* action_export_;
   QAction* action_export_all_;

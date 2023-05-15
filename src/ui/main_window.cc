@@ -171,6 +171,11 @@ void MainWindow::CreateActions() {
   connect(action_import_, &QAction::triggered, this, &MainWindow::Import);
   blocking_actions_.push_back(action_import_);
 
+  action_import_multiple_ =
+      new QAction(QIcon(":/media/import.png"), tr("Import multiple models"), this);
+  connect(action_import_multiple_, &QAction::triggered, this, &MainWindow::ImportMultiple);
+  blocking_actions_.push_back(action_import_multiple_);
+
   action_import_from_ = new QAction(QIcon(":/media/import-from.png"),
                                     tr("Import model from..."), this);
   connect(action_import_from_, &QAction::triggered, this,
@@ -415,6 +420,7 @@ void MainWindow::CreateMenus() {
   file_menu->addAction(action_project_save_as_);
   file_menu->addSeparator();
   file_menu->addAction(action_import_);
+  file_menu->addAction(action_import_multiple_);
   file_menu->addAction(action_import_from_);
   file_menu->addSeparator();
   file_menu->addAction(action_export_);
@@ -661,6 +667,71 @@ void MainWindow::ProjectSaveAs() {
 }
 
 void MainWindow::Import() {
+  const std::string import_path =
+      QFileDialog::getExistingDirectory(this, tr("Select source..."), "",
+                                        QFileDialog::ShowDirsOnly)
+          .toUtf8()
+          .constData();
+
+  // Selection canceled?
+  if (import_path == "") {
+    return;
+  }
+
+  const std::string project_path = JoinPaths(import_path, "project.ini");
+  const std::string cameras_bin_path = JoinPaths(import_path, "cameras.bin");
+  const std::string images_bin_path = JoinPaths(import_path, "images.bin");
+  const std::string points3D_bin_path = JoinPaths(import_path, "points3D.bin");
+  const std::string cameras_txt_path = JoinPaths(import_path, "cameras.txt");
+  const std::string images_txt_path = JoinPaths(import_path, "images.txt");
+  const std::string points3D_txt_path = JoinPaths(import_path, "points3D.txt");
+
+  if ((!ExistsFile(cameras_bin_path) || !ExistsFile(images_bin_path) ||
+       !ExistsFile(points3D_bin_path)) &&
+      (!ExistsFile(cameras_txt_path) || !ExistsFile(images_txt_path) ||
+       !ExistsFile(points3D_txt_path))) {
+    QMessageBox::critical(this, "",
+                          tr("cameras, images, and points3D files do not exist "
+                             "in chosen directory."));
+    return;
+  }
+
+  if (!ReconstructionOverwrite()) {
+    return;
+  }
+
+  bool edit_project = false;
+  if (ExistsFile(project_path)) {
+    options_.ReRead(project_path);
+  } else {
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this, "",
+        tr("Directory does not contain a <i>project.ini</i>. To "
+           "resume the reconstruction, you need to specify a valid "
+           "database and image path. Do you want to select the paths "
+           "now (or press <i>No</i> to only visualize the reconstruction)?"),
+        QMessageBox::Yes | QMessageBox::No);
+    if (reply == QMessageBox::Yes) {
+      edit_project = true;
+    }
+  }
+
+  thread_control_widget_->StartFunction(
+      "Importing...", [this, import_path, edit_project]() {
+        const size_t idx = reconstruction_manager_.Read(import_path);
+        reconstruction_manager_widget_->Update();
+        reconstruction_manager_widget_->SelectReconstruction(idx);
+        action_bundle_adjustment_->setEnabled(true);
+        action_render_now_->trigger();
+        if (edit_project) {
+          action_project_edit_->trigger();
+        }
+      });
+}
+
+
+
+void MainWindow::ImportMultiple() {
   const std::string import_path =
       QFileDialog::getExistingDirectory(this, tr("Select source..."), "",
                                         QFileDialog::ShowDirsOnly)
