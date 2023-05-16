@@ -739,7 +739,7 @@ void IncrementalMapperController::Reconstruct(
 
     const size_t max_num_models = static_cast<size_t>(options_->max_num_models);
     if (initial_reconstruction_given || !options_->multiple_models ||
-        reconstruction_manager_->Size() >= max_num_models ||
+        (reconstruction_manager_->Size() >= max_num_models && !init_mapper_options.bundle_reconstruction) ||
         mapper.NumTotalRegImages() >= database_cache_.NumImages() - 1) {
       break;
     }

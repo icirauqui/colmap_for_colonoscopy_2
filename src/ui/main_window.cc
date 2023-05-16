@@ -769,22 +769,39 @@ void MainWindow::ImportMultiple() {
     global_available = true;
   }
 
+  if (global_available && folders.size() == 0) {
+    QMessageBox::warning(this, tr("Warning"),
+                         tr("Only folder \"global\" found in directory, use Import instead of Import Multiple"));
+    return;
+  }
+
   // Sort folders by their int equivalent element
   std::sort(folders.begin(), folders.end(), [](const std::string& a, const std::string& b) {
     return std::stoi(a) < std::stoi(b);
   });
 
+  bool project_loaded = false;
   if (global_available) {
-    folders.insert(folders.begin(), "global");
+    //QMessageBox::warning(this, tr("Warning"),
+    //                     tr("Folder \"global\" found, won't be read"));
+    std::cout << "Folder \"global\" found, won't be read" << std::endl;
+
+    std::string import_path_project = import_path_root + "/global/";
+    const std::string project_file_path  = JoinPaths(import_path_project, "project.ini");
+    options_.ReRead(project_file_path);
+    project_loaded = true;
+
+    //folders.insert(folders.begin(), "global");
   }
 
   std::cout << "Folders found in directory: ";
   for (auto folder : folders) {
-    std::cout << folder << ", ";
+    std::cout << folder;
+    if (folder != folders.back())
+      std::cout << ", ";
   }
   std::cout << std::endl;
 
-  bool project_loaded = false;
   int count = 0;
   for (auto folder : folders) {
 
@@ -1035,10 +1052,7 @@ void MainWindow::ExportAsText() {
 
 //IC09
 void MainWindow::ExportAsTextAll() {
-  if (!IsSelectedReconstructionValid()) {
-    return;
-  }
-
+/*
   const std::string export_path =
       QFileDialog::getExistingDirectory(this, tr("Select destination..."), "",
                                         QFileDialog::ShowDirsOnly)
@@ -1053,11 +1067,13 @@ void MainWindow::ExportAsTextAll() {
   const std::string cameras_name = "cameras.txt";
   const std::string images_name = "images.txt";
   const std::string points3D_name = "points3D.txt";
+  const std::string points3Dd_name = "points3Dd.txt";
 
   const std::string project_path = JoinPaths(export_path, "project.ini");
   const std::string cameras_path = JoinPaths(export_path, cameras_name);
   const std::string images_path = JoinPaths(export_path, images_name);
   const std::string points3D_path = JoinPaths(export_path, points3D_name);
+  const std::string points3Dd_path = JoinPaths(export_path, points3Dd_name);
 
   if (ExistsFile(cameras_path) || ExistsFile(images_path) ||
       ExistsFile(points3D_path)) {
@@ -1086,6 +1102,26 @@ void MainWindow::ExportAsTextAll() {
         //reconstruction.WriteText(export_path);
         //options_.Write(project_path);
       });
+*/
+
+  if (!IsSelectedReconstructionValid()) {
+    return;
+  }
+
+  const std::string export_path =
+      QFileDialog::getExistingDirectory(this, tr("Select destination..."), "",
+                                        QFileDialog::ShowDirsOnly)
+          .toUtf8()
+          .constData();
+
+  // Selection canceled?
+  if (export_path == "") {
+    return;
+  }
+
+  thread_control_widget_->StartFunction("Exporting...", [this, export_path]() {
+    reconstruction_manager_.WriteText(export_path, &options_);
+  });
 }
 
 
