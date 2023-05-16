@@ -57,6 +57,9 @@
 #include "ui/undistortion_widget.h"
 #include "util/bitmap.h"
 
+#include <chrono>
+#include <thread>
+
 namespace colmap {
 
 class MainWindow : public QMainWindow {
@@ -87,7 +90,7 @@ class MainWindow : public QMainWindow {
   void ProjectSave();
   void ProjectSaveAs();
   void Import();
-  void ImportMultiple();
+  void ImportMultiple();  //IC09
   void ImportFrom();
   void Export();
   void ExportAll();

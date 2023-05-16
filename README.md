@@ -69,8 +69,9 @@ IC07 - Add bundled mapper option to command line
 IC08 - Deliverable review and fixes
 * colmap/src/base/reconstruction.cc
 
-IC09 - Export all models togheter as text files
-* colmap/src/base/...
+IC09 - Export all models togheter as text files, import multiple models together
+* colmap/src/ui/main_window.h
+* colmap/src/ui/main_window.cc
 
 
 

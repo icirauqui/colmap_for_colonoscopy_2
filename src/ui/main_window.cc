@@ -730,68 +730,114 @@ void MainWindow::Import() {
 }
 
 
-
+// IC09
 void MainWindow::ImportMultiple() {
-  const std::string import_path =
+  const std::string import_path_root =
       QFileDialog::getExistingDirectory(this, tr("Select source..."), "",
                                         QFileDialog::ShowDirsOnly)
           .toUtf8()
           .constData();
 
   // Selection canceled?
-  if (import_path == "") {
+  if (import_path_root == "") {
     return;
   }
 
-  const std::string project_path = JoinPaths(import_path, "project.ini");
-  const std::string cameras_bin_path = JoinPaths(import_path, "cameras.bin");
-  const std::string images_bin_path = JoinPaths(import_path, "images.bin");
-  const std::string points3D_bin_path = JoinPaths(import_path, "points3D.bin");
-  const std::string cameras_txt_path = JoinPaths(import_path, "cameras.txt");
-  const std::string images_txt_path = JoinPaths(import_path, "images.txt");
-  const std::string points3D_txt_path = JoinPaths(import_path, "points3D.txt");
 
-  if ((!ExistsFile(cameras_bin_path) || !ExistsFile(images_bin_path) ||
-       !ExistsFile(points3D_bin_path)) &&
-      (!ExistsFile(cameras_txt_path) || !ExistsFile(images_txt_path) ||
-       !ExistsFile(points3D_txt_path))) {
-    QMessageBox::critical(this, "",
-                          tr("cameras, images, and points3D files do not exist "
-                             "in chosen directory."));
+  // Get all folders in import_path_root
+  QDir directory(QString::fromStdString(import_path_root));
+  QStringList qfolders = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+  // Check if directory contains folders
+  if (qfolders.size() == 0) {
+    QMessageBox::warning(this, tr("Warning"),
+                         tr("No folders found in directory"));
     return;
   }
 
-  if (!ReconstructionOverwrite()) {
-    return;
+  // Print folders
+  std::vector<std::string> folders;
+  for (int i = 0; i < qfolders.size(); i++) {
+    folders.push_back(qfolders[i].toUtf8().constData());
   }
 
-  bool edit_project = false;
-  if (ExistsFile(project_path)) {
-    options_.ReRead(project_path);
-  } else {
-    QMessageBox::StandardButton reply = QMessageBox::question(
-        this, "",
-        tr("Directory does not contain a <i>project.ini</i>. To "
-           "resume the reconstruction, you need to specify a valid "
-           "database and image path. Do you want to select the paths "
-           "now (or press <i>No</i> to only visualize the reconstruction)?"),
-        QMessageBox::Yes | QMessageBox::No);
-    if (reply == QMessageBox::Yes) {
-      edit_project = true;
+  // If folder "global" exists, remove it
+  bool global_available = false;
+  if (std::find(folders.begin(), folders.end(), "global") != folders.end()) {
+    folders.erase(std::remove(folders.begin(), folders.end(), "global"),
+                  folders.end());
+    global_available = true;
+  }
+
+  // Sort folders by their int equivalent element
+  std::sort(folders.begin(), folders.end(), [](const std::string& a, const std::string& b) {
+    return std::stoi(a) < std::stoi(b);
+  });
+
+  if (global_available) {
+    folders.insert(folders.begin(), "global");
+  }
+
+  std::cout << "Folders found in directory: ";
+  for (auto folder : folders) {
+    std::cout << folder << ", ";
+  }
+  std::cout << std::endl;
+
+  bool project_loaded = false;
+  int count = 0;
+  for (auto folder : folders) {
+
+    std::string import_path = import_path_root + "/" + folder + "/";
+
+    const std::string project_path       = JoinPaths(import_path, "project.ini");
+    const std::string cameras_bin_path   = JoinPaths(import_path, "cameras.bin");
+    const std::string images_bin_path    = JoinPaths(import_path, "images.bin");
+    const std::string points3D_bin_path  = JoinPaths(import_path, "points3D.bin");
+    const std::string points3Dd_bin_path = JoinPaths(import_path, "points3Dd.bin");
+    const std::string cameras_txt_path   = JoinPaths(import_path, "cameras.txt");
+    const std::string images_txt_path    = JoinPaths(import_path, "images.txt");
+    const std::string points3D_txt_path  = JoinPaths(import_path, "points3D.txt");
+    const std::string points3Dd_txt_path = JoinPaths(import_path, "points3Dd.txt");
+
+    if ((!ExistsFile(cameras_bin_path) || !ExistsFile(images_bin_path) ||
+        !ExistsFile(points3D_bin_path) || !ExistsFile(points3Dd_bin_path)) &&
+        (!ExistsFile(cameras_txt_path) || !ExistsFile(images_txt_path) ||
+        !ExistsFile(points3D_txt_path) || !ExistsFile(points3Dd_txt_path))) {
+      QMessageBox::critical(this, "",
+        tr("cameras, images, and points3D files do not exist "
+          "in chosen directory."));
+      return;
     }
-  }
 
-  thread_control_widget_->StartFunction(
-      "Importing...", [this, import_path, edit_project]() {
-        const size_t idx = reconstruction_manager_.Read(import_path);
-        reconstruction_manager_widget_->Update();
-        reconstruction_manager_widget_->SelectReconstruction(idx);
-        action_bundle_adjustment_->setEnabled(true);
-        action_render_now_->trigger();
-        if (edit_project) {
-          action_project_edit_->trigger();
+    bool edit_project = false;
+    if (ExistsFile(project_path) && !project_loaded) {
+      options_.ReRead(project_path);
+      project_loaded = true;
+    }
+    else {
+      if (!project_loaded) {
+        QMessageBox::StandardButton reply = QMessageBox::question(
+          this, "",
+          tr("Directory does not contain a <i>project.ini</i>. To "
+            "resume the reconstruction, you need to specify a valid "
+            "database and image path. Do you want to select the paths "
+            "now (or press <i>No</i> to only visualize the reconstruction)?"),
+          QMessageBox::Yes | QMessageBox::No);
+        if (reply == QMessageBox::Yes) {
+          edit_project = true;
         }
-      });
+      }
+    }
+
+    const size_t idx = reconstruction_manager_.Read(import_path);
+
+    //if (count++ == 12) {
+    //  break;
+    //}
+
+  }
+  reconstruction_manager_widget_->Update();
 }
 
 void MainWindow::ImportFrom() {
@@ -983,6 +1029,10 @@ void MainWindow::ExportAsText() {
       });
 }
 
+
+
+
+
 //IC09
 void MainWindow::ExportAsTextAll() {
   if (!IsSelectedReconstructionValid()) {
@@ -1037,6 +1087,17 @@ void MainWindow::ExportAsTextAll() {
         //options_.Write(project_path);
       });
 }
+
+
+
+
+
+
+
+
+
+
+
 
 void MainWindow::FeatureExtraction() {
   if (options_.Check()) {
