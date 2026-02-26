@@ -1044,6 +1044,10 @@ void MatchSiftFeaturesCPU(const SiftMatchingOptions& match_options,
   //std::cout << "MatchSiftFeaturesCPU" << std::endl;
 
   MatchSiftFeaturesCPUFLANN(match_options, descriptors1, descriptors2, matches);
+
+  if (matches->size() > static_cast<size_t>(match_options.max_num_matches)) {
+    matches->resize(static_cast<size_t>(match_options.max_num_matches));
+  }
 }
 
 void MatchGuidedSiftFeaturesCPU(const SiftMatchingOptions& match_options,
@@ -1138,6 +1142,12 @@ void MatchGuidedSiftFeaturesCPU(const SiftMatchingOptions& match_options,
                        distances_2to1, match_options.max_ratio,
                        match_options.max_distance, match_options.cross_check,
                        &two_view_geometry->inlier_matches);
+
+  if (two_view_geometry->inlier_matches.size() >
+      static_cast<size_t>(match_options.max_num_matches)) {
+    two_view_geometry->inlier_matches.resize(
+        static_cast<size_t>(match_options.max_num_matches));
+  }
 }
 
 
@@ -1254,6 +1264,12 @@ void MatchGuidedSiftFeaturesCPU(const SiftMatchingOptions& match_options,
                        distances_2to1, match_options.max_ratio,
                        match_options.max_distance, match_options.cross_check,
                        &two_view_geometry->inlier_matches);
+
+  if (two_view_geometry->inlier_matches.size() >
+      static_cast<size_t>(match_options.max_num_matches)) {
+    two_view_geometry->inlier_matches.resize(
+        static_cast<size_t>(match_options.max_num_matches));
+  }
 }
 
 
@@ -1406,6 +1422,9 @@ void MatchGuidedSiftFeaturesGPU(const SiftMatchingOptions& match_options,
     const size_t kIndex = 0;
     sift_match_gpu->SetDescriptors(kIndex, descriptors1->rows(),
                                    descriptors1->data());
+  }
+  if (keypoints1 != nullptr) {
+    const size_t kIndex = 0;
     sift_match_gpu->SetFeautreLocation(
         kIndex, reinterpret_cast<const float*>(keypoints1->data()),
         kFeatureShapeNumElems);
@@ -1419,6 +1438,9 @@ void MatchGuidedSiftFeaturesGPU(const SiftMatchingOptions& match_options,
     const size_t kIndex = 1;
     sift_match_gpu->SetDescriptors(kIndex, descriptors2->rows(),
                                    descriptors2->data());
+  }
+  if (keypoints2 != nullptr) {
+    const size_t kIndex = 1;
     sift_match_gpu->SetFeautreLocation(
         kIndex, reinterpret_cast<const float*>(keypoints2->data()),
         kFeatureShapeNumElems);
