@@ -810,11 +810,13 @@ size_t IncrementalMapper::FilterPoints(const Options& options) {
   CHECK(options.Check());
 
   Database* db_tmp_2 = new Database(database_cache_->db_path);  //IC02
-  return reconstruction_->FilterAllPoints3D(options.filter_max_reproj_error,
-                                            options.filter_min_tri_angle,
-                                            db_tmp_2); //IC02 add pointer to database
+  const size_t num_filtered =
+      reconstruction_->FilterAllPoints3D(options.filter_max_reproj_error,
+                                         options.filter_min_tri_angle,
+                                         db_tmp_2); //IC02 add pointer to database
   delete db_tmp_2;  //IC02
-  db_tmp_2 = NULL;  //IC02
+  db_tmp_2 = nullptr;  //IC02
+  return num_filtered;
 }
 
 const Reconstruction& IncrementalMapper::GetReconstruction() const {

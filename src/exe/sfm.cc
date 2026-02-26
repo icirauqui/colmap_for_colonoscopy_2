@@ -391,6 +391,7 @@ int RunPointFiltering(int argc, char** argv) {
   OptionManager options;
   options.AddRequiredOption("input_path", &input_path);
   options.AddRequiredOption("output_path", &output_path);
+  options.AddDefaultOption("database_path", options.database_path.get());
   options.AddDefaultOption("min_track_len", &min_track_len);
   options.AddDefaultOption("max_reproj_error", &max_reproj_error);
   options.AddDefaultOption("min_tri_angle", &min_tri_angle);
@@ -399,10 +400,14 @@ int RunPointFiltering(int argc, char** argv) {
   Reconstruction reconstruction;
   reconstruction.Read(input_path);
 
-  Database* db_tmp_3 = new Database(*options.database_path);  //IC02
+  Database* db_tmp_3 = nullptr;  //IC02
+  if (!options.database_path->empty()) {
+    db_tmp_3 = new Database(*options.database_path);  //IC02
+  }
   size_t num_filtered =
       reconstruction.FilterAllPoints3D(max_reproj_error, min_tri_angle, db_tmp_3);   //IC02 add pointer to database
   delete db_tmp_3;  //IC02
+  db_tmp_3 = nullptr;
 
   for (const auto point3D_id : reconstruction.Point3DIds()) {
     const auto& point3D = reconstruction.Point3D(point3D_id);

@@ -46,7 +46,8 @@ namespace colmap {
 
 //IC02
 Reconstruction::Reconstruction()
-    : correspondence_graph_(nullptr), num_added_points3D_(0) {}
+    : correspondence_graph_(nullptr), num_added_points3D_(0),
+      num_added_points3Dd_(0) {}
 
 std::unordered_set<point3D_t> Reconstruction::Point3DIds() const {
   std::unordered_set<point3D_t> point3D_ids;
@@ -195,9 +196,9 @@ point3D_t Reconstruction::AddPoint3D(const Eigen::Vector3d& xyz,
 // IC01
 point3D_t Reconstruction::AddPoint3Dd(point3D_t point3D_id) {
 
-  int ptid = CompareTracks_P3Dd_P3Dd2(point3D_id);  // IC04
+  CompareTracks_P3Dd_P3Dd2(point3D_id);  // IC04
 
-  class Point3D& point3D = points3D_[point3D_id];
+  class Point3D& point3D = Point3D(point3D_id);
   class Point3D& point3Dd = points3Dd_[point3D_id];
   
   point3Dd.SetXYZ(point3D.XYZ());
@@ -218,7 +219,7 @@ point3D_t Reconstruction::AddPoint3Dd(point3D_t point3D_id) {
 
 // IC04
 point3D_t Reconstruction::AddPoint3Dd_from_3Dd2(point3D_t point3D_id) {
-  class Point3D& point3Dd2 = points3D_[point3D_id];
+  class Point3D& point3Dd2 = points3Dd2_.at(point3D_id);
   class Point3D& point3Dd = points3Dd_[point3D_id];
 
   point3Dd.SetXYZ(point3Dd2.XYZ());
@@ -230,7 +231,7 @@ point3D_t Reconstruction::AddPoint3Dd_from_3Dd2(point3D_t point3D_id) {
 
 // IC04
 point3D_t Reconstruction::AddPoint3Dd2_from_3Dd(point3D_t point3D_id) {
-  class Point3D& point3Dd = points3Dd_[point3D_id];
+  class Point3D& point3Dd = points3Dd_.at(point3D_id);
   class Point3D& point3Dd2 = points3Dd2_[point3D_id];
 
   point3Dd2.SetXYZ(point3Dd.XYZ());
@@ -243,42 +244,44 @@ point3D_t Reconstruction::AddPoint3Dd2_from_3Dd(point3D_t point3D_id) {
 // IC04
 point3D_t Reconstruction::CompareTracks_P3D_P3Dd(point3D_t point3D_id) {
 
-  class Point3D& point3D = points3D_[point3D_id];
-  Track tr1 = point3D.Track();
+  class Point3D& point3D = Point3D(point3D_id);
+  const Track& tr1 = point3D.Track();
 
-  int p3Dd_id = -1;
-  int ntotal = 0;
-  int ntotalmax = 0;
-  int nmatch = 0;
-  int nmatchmax = 0;
+  point3D_t p3Dd_id = kInvalidPoint3DId;
+  size_t nmatchmax = 0;
+  double match_ratio_max = 0.0;
 
-  for (unsigned int idx=0; idx<points3Dd_.size(); idx++){
-
-    class Point3D& p3Dd = points3Dd_[idx];
-
-    if (!ExistsPoint3Dd(idx))
-      continue;
-    
-    Track tr2 = p3Dd.Track();
+  for (const auto& point3Dd : points3Dd_) {
+    size_t nmatch = 0;
+    size_t ntotal = 0;
+    const Track& tr2 = point3Dd.second.Track();
 
     for (const auto& tr1i : tr1.Elements()) {
       for (const auto& tr2i : tr2.Elements()) {
-        if (tr1i.image_id == tr2i.image_id && tr1i.point2D_idx == tr2i.point2D_idx) {
-          nmatch++;
+        if (tr1i.image_id == tr2i.image_id &&
+            tr1i.point2D_idx == tr2i.point2D_idx) {
+          nmatch += 1;
           break;
         }
       }
-      ntotal++;
+      ntotal += 1;
     }
 
-    if ((nmatch/(ntotal+1)) >= (nmatchmax/(ntotalmax+1))){
+    const double match_ratio = ntotal > 0
+                                   ? static_cast<double>(nmatch) /
+                                         static_cast<double>(ntotal)
+                                   : 0.0;
+
+    if (match_ratio > match_ratio_max ||
+        (match_ratio == match_ratio_max && nmatch > nmatchmax)) {
+      match_ratio_max = match_ratio;
       nmatchmax = nmatch;
-      ntotalmax = ntotal;
-      p3Dd_id = idx;
-    } 
+      p3Dd_id = point3Dd.first;
+    }
   }
 
-  if ((p3Dd_id>=0) && (nmatchmax>=3) && ((nmatchmax/ntotalmax)>=0.66)) {
+  if (p3Dd_id != kInvalidPoint3DId && nmatchmax >= 3 &&
+      match_ratio_max >= 0.66) {
     AddPoint3Dd2_from_3Dd(p3Dd_id);
     DeletePoint3Dd(p3Dd_id);
   }
@@ -289,42 +292,44 @@ point3D_t Reconstruction::CompareTracks_P3D_P3Dd(point3D_t point3D_id) {
 // IC04
 point3D_t Reconstruction::CompareTracks_P3Dd_P3Dd2(point3D_t point3D_id) {
 
-  class Point3D& point3D = points3D_[point3D_id];
-  Track tr1 = point3D.Track();
+  class Point3D& point3D = Point3D(point3D_id);
+  const Track& tr1 = point3D.Track();
 
-  int p3Dd_id = -1;
-  int ntotal = 0;
-  int ntotalmax = 0;
-  int nmatch = 0;
-  int nmatchmax = 0;
+  point3D_t p3Dd_id = kInvalidPoint3DId;
+  size_t nmatchmax = 0;
+  double match_ratio_max = 0.0;
 
-  for (unsigned int idx=0; idx<points3Dd2_.size(); idx++){
-
-    class Point3D& p3Dd = points3Dd2_[idx];
-
-    if (!ExistsPoint3Dd(idx))
-      continue;
-    
-    Track tr2 = p3Dd.Track();
+  for (const auto& point3Dd2 : points3Dd2_) {
+    size_t nmatch = 0;
+    size_t ntotal = 0;
+    const Track& tr2 = point3Dd2.second.Track();
 
     for (const auto& tr1i : tr1.Elements()) {
       for (const auto& tr2i : tr2.Elements()) {
-        if (tr1i.image_id == tr2i.image_id && tr1i.point2D_idx == tr2i.point2D_idx) {
-          nmatch++;
+        if (tr1i.image_id == tr2i.image_id &&
+            tr1i.point2D_idx == tr2i.point2D_idx) {
+          nmatch += 1;
           break;
         }
       }
-      ntotal++;
+      ntotal += 1;
     }
 
-    if ((nmatch/(ntotal+1)) >= (nmatchmax/(ntotalmax+1))){
+    const double match_ratio = ntotal > 0
+                                   ? static_cast<double>(nmatch) /
+                                         static_cast<double>(ntotal)
+                                   : 0.0;
+
+    if (match_ratio > match_ratio_max ||
+        (match_ratio == match_ratio_max && nmatch > nmatchmax)) {
+      match_ratio_max = match_ratio;
       nmatchmax = nmatch;
-      ntotalmax = ntotal;
-      p3Dd_id = idx;
-    } 
+      p3Dd_id = point3Dd2.first;
+    }
   }
 
-  if ((p3Dd_id>=0) && (nmatchmax>=3) && ((nmatchmax/ntotalmax)>=0.66)) {
+  if (p3Dd_id != kInvalidPoint3DId && nmatchmax >= 3 &&
+      match_ratio_max >= 0.66) {
     //AddPoint3Dd_from_3Dd2(p3Dd_id);
     DeletePoint3Dd2(p3Dd_id);
   }
@@ -402,7 +407,8 @@ void Reconstruction::DeletePoint3D(const point3D_t point3D_id) {
 
 // IC04
 void Reconstruction::DeletePoint3Dd(const point3D_t point3D_id) {
-  const class Track& track = Point3D(point3D_id).Track();
+  CHECK(ExistsPoint3Dd(point3D_id));
+  const class Track& track = points3Dd_.at(point3D_id).Track();
 
   const bool kIsDeletedPoint3D = true;
 
@@ -421,7 +427,8 @@ void Reconstruction::DeletePoint3Dd(const point3D_t point3D_id) {
 
 // IC04
 void Reconstruction::DeletePoint3Dd2(const point3D_t point3D_id) {
-  const class Track& track = Point3D(point3D_id).Track();
+  CHECK(ExistsPoint3Dd2(point3D_id));
+  const class Track& track = points3Dd2_.at(point3D_id).Track();
 
   const bool kIsDeletedPoint3D = true;
 
@@ -432,7 +439,7 @@ void Reconstruction::DeletePoint3Dd2(const point3D_t point3D_id) {
 
   for (const auto& track_el : track.Elements()) {
     class Image& image = Image(track_el.image_id);
-    image.ResetPoint3DForPoint2D(track_el.point2D_idx);
+    image.ResetPoint3DdForPoint2D(track_el.point2D_idx);
   }
 
   points3Dd2_.erase(point3D_id);
@@ -829,9 +836,6 @@ size_t Reconstruction::FilterAllPoints3D(const double max_reproj_error,
   num_filtered +=
       FilterPoints3DWithSmallTriangulationAngle(min_tri_angle, point3D_ids, database_); //IC02 add pointer to database
 
-  delete database_; //IC08 delete database
-  database_ = nullptr; //IC08 set pointer to null
-
   return num_filtered;
 }
 
@@ -922,18 +926,19 @@ double Reconstruction::ComputeMeanReprojectionError() const {
 }
 
 void Reconstruction::Read(const std::string& path) {
-  if (ExistsFile(JoinPaths(path, "cameras.bin")) &&
-      ExistsFile(JoinPaths(path, "images.bin")) &&
-      ExistsFile(JoinPaths(path, "points3D.bin")) &&
-      ExistsFile(JoinPaths(path, "points3Dd.bin"))) {     //IC05
+  const bool has_binary_model = ExistsFile(JoinPaths(path, "cameras.bin")) &&
+                                ExistsFile(JoinPaths(path, "images.bin")) &&
+                                ExistsFile(JoinPaths(path, "points3D.bin"));
+  const bool has_text_model = ExistsFile(JoinPaths(path, "cameras.txt")) &&
+                              ExistsFile(JoinPaths(path, "images.txt")) &&
+                              ExistsFile(JoinPaths(path, "points3D.txt"));
+
+  if (has_binary_model) {
     ReadBinary(path);
-  } else if (ExistsFile(JoinPaths(path, "cameras.txt")) &&
-             ExistsFile(JoinPaths(path, "images.txt")) &&
-             ExistsFile(JoinPaths(path, "points3D.txt")) &&
-             ExistsFile(JoinPaths(path, "points3Dd.txt"))) {    //IC05
+  } else if (has_text_model) {
     ReadText(path);
   } else {
-    LOG(FATAL) << "cameras, images, points3D, points3Dd files do not exist at " << path;
+    LOG(FATAL) << "cameras, images, points3D files do not exist at " << path;
   }
 }
 
@@ -946,17 +951,27 @@ void Reconstruction::WriteBundle(const std::string& path) const {
 }
 
 void Reconstruction::ReadText(const std::string& path) {
+  const bool has_points3Dd = ExistsFile(JoinPaths(path, "points3Dd.txt"));
   ReadCamerasText(JoinPaths(path, "cameras.txt"));
-  ReadImagesText(JoinPaths(path, "images.txt"));
+  ReadImagesText(JoinPaths(path, "images.txt"), has_points3Dd);
   ReadPoints3DText(JoinPaths(path, "points3D.txt"));
-  ReadPoints3DdText(JoinPaths(path, "points3Dd.txt"));
+  points3Dd_.clear();
+  points3Dd2_.clear();
+  if (has_points3Dd) {
+    ReadPoints3DdText(JoinPaths(path, "points3Dd.txt"));
+  }
 }
 
 void Reconstruction::ReadBinary(const std::string& path) {
+  const bool has_points3Dd = ExistsFile(JoinPaths(path, "points3Dd.bin"));
   ReadCamerasBinary(JoinPaths(path, "cameras.bin"));
-  ReadImagesBinary(JoinPaths(path, "images.bin"));
+  ReadImagesBinary(JoinPaths(path, "images.bin"), has_points3Dd);
   ReadPoints3DBinary(JoinPaths(path, "points3D.bin"));
-  ReadPoints3DdBinary(JoinPaths(path, "points3Dd.bin"));
+  points3Dd_.clear();
+  points3Dd2_.clear();
+  if (has_points3Dd) {
+    ReadPoints3DdBinary(JoinPaths(path, "points3Dd.bin"));
+  }
 }
 
 void Reconstruction::WriteText(const std::string& path) const {
@@ -1659,8 +1674,11 @@ size_t Reconstruction::FilterPoints3DWithSmallTriangulationAngle(
       if (database_){
         for (const auto& track_el : point3D.Track().Elements()){
           std::vector<int> keypoints_det = database_->ReadKeypointsDet(track_el.image_id);
-          keypoints_det[track_el.point2D_idx] = 3;
-          database_->UpdateKeypointsDet(track_el.image_id, keypoints_det);
+          const size_t point2D_idx = static_cast<size_t>(track_el.point2D_idx);
+          if (point2D_idx < keypoints_det.size()) {
+            keypoints_det[point2D_idx] = 3;
+            database_->UpdateKeypointsDet(track_el.image_id, keypoints_det);
+          }
         }
       }
       //IC02_2
@@ -1723,8 +1741,11 @@ size_t Reconstruction::FilterPoints3DWithLargeReprojectionError(
       if (track_els_to_delete.size() > 0 && database_){
         for (const auto& track_el : track_els_to_delete){
           std::vector<int> keypoints_det = database_->ReadKeypointsDet(track_el.image_id);
-          keypoints_det[track_el.point2D_idx] = 1;
-          database_->UpdateKeypointsDet(track_el.image_id, keypoints_det);
+          const size_t point2D_idx = static_cast<size_t>(track_el.point2D_idx);
+          if (point2D_idx < keypoints_det.size()) {
+            keypoints_det[point2D_idx] = 1;
+            database_->UpdateKeypointsDet(track_el.image_id, keypoints_det);
+          }
         }
       }
     }
@@ -1736,8 +1757,11 @@ size_t Reconstruction::FilterPoints3DWithLargeReprojectionError(
       if (database_){
         for (const auto& track_el : track_els_to_delete){
           std::vector<int> keypoints_det = database_->ReadKeypointsDet(track_el.image_id);
-          keypoints_det[track_el.point2D_idx] = 2;
-          database_->UpdateKeypointsDet(track_el.image_id, keypoints_det);
+          const size_t point2D_idx = static_cast<size_t>(track_el.point2D_idx);
+          if (point2D_idx < keypoints_det.size()) {
+            keypoints_det[point2D_idx] = 2;
+            database_->UpdateKeypointsDet(track_el.image_id, keypoints_det);
+          }
         }
       }
       //IC02_2
@@ -1859,7 +1883,8 @@ void Reconstruction::ReadCamerasText(const std::string& path) {
   }
 }
 
-void Reconstruction::ReadImagesText(const std::string& path) {
+void Reconstruction::ReadImagesText(const std::string& path,
+                                    bool read_point3Dd_ids) {
   images_.clear();
 
   std::ifstream file(path);
@@ -1926,39 +1951,48 @@ void Reconstruction::ReadImagesText(const std::string& path) {
     }
 
     StringTrim(&line);
-    std::stringstream line_stream2(line);
-
     std::vector<Eigen::Vector2d> points2D;
     std::vector<point3D_t> point3D_ids;
     std::vector<point3D_t> point3Dd_ids;    //IC05
 
     if (!line.empty()) {
-      while (!line_stream2.eof()) {
+      std::stringstream line_stream2(line);
+      std::vector<std::string> tokens;
+      while (std::getline(line_stream2, item, ' ')) {
+        StringTrim(&item);
+        if (!item.empty()) {
+          tokens.push_back(item);
+        }
+      }
+
+      size_t tokens_per_point = 3;
+      if (read_point3Dd_ids && tokens.size() % 4 == 0) {
+        tokens_per_point = 4;
+      }
+
+      CHECK_EQ(tokens.size() % tokens_per_point, 0);
+
+      for (size_t i = 0; i < tokens.size(); i += tokens_per_point) {
         Eigen::Vector2d point;
-
-        std::getline(line_stream2, item, ' ');
-        point.x() = std::stold(item);
-
-        std::getline(line_stream2, item, ' ');
-        point.y() = std::stold(item);
-
+        point.x() = std::stold(tokens[i]);
+        point.y() = std::stold(tokens[i + 1]);
         points2D.push_back(point);
 
-        std::getline(line_stream2, item, ' ');
-        if (item == "-1") {
+        if (tokens[i + 2] == "-1") {
           point3D_ids.push_back(kInvalidPoint3DId);
         } else {
-          point3D_ids.push_back(std::stoll(item));
+          point3D_ids.push_back(std::stoll(tokens[i + 2]));
         }
 
-        //IC05_1
-        std::getline(line_stream2, item, ' ');
-        if (item == "-1") {
-          point3Dd_ids.push_back(kInvalidPoint3DId);
+        if (tokens_per_point == 4) {
+          if (tokens[i + 3] == "-1") {
+            point3Dd_ids.push_back(kInvalidPoint3DId);
+          } else {
+            point3Dd_ids.push_back(std::stoll(tokens[i + 3]));
+          }
         } else {
-          point3Dd_ids.push_back(std::stoll(item));
+          point3Dd_ids.push_back(kInvalidPoint3DId);
         }
-        //IC05_2
       }
     }
 
@@ -2057,7 +2091,7 @@ void Reconstruction::ReadPoints3DText(const std::string& path) {
 
 //IC05
 void Reconstruction::ReadPoints3DdText(const std::string& path) {
-  points3D_.clear();
+  points3Dd_.clear();
 
   std::ifstream file(path);
   CHECK(file.is_open()) << path;
@@ -2148,7 +2182,8 @@ void Reconstruction::ReadCamerasBinary(const std::string& path) {
   }
 }
 
-void Reconstruction::ReadImagesBinary(const std::string& path) {
+void Reconstruction::ReadImagesBinary(const std::string& path,
+                                      bool read_point3Dd_ids) {
   std::ifstream file(path, std::ios::binary);
   CHECK(file.is_open()) << path;
 
@@ -2191,7 +2226,11 @@ void Reconstruction::ReadImagesBinary(const std::string& path) {
       const double y = ReadBinaryLittleEndian<double>(&file);
       points2D.emplace_back(x, y);
       point3D_ids.push_back(ReadBinaryLittleEndian<point3D_t>(&file));
-      point3Dd_ids.push_back(ReadBinaryLittleEndian<point3D_t>(&file)); //IC05
+      if (read_point3Dd_ids) {
+        point3Dd_ids.push_back(ReadBinaryLittleEndian<point3D_t>(&file)); //IC05
+      } else {
+        point3Dd_ids.push_back(kInvalidPoint3DId);
+      }
     }
 
     image.SetUp(Camera(image.CameraId()));

@@ -448,11 +448,12 @@ class Reconstruction {
                            const bool use_images) const;
 
   void ReadCamerasText(const std::string& path);
-  void ReadImagesText(const std::string& path);
+  void ReadImagesText(const std::string& path, bool read_point3Dd_ids = true);
   void ReadPoints3DText(const std::string& path);
   void ReadPoints3DdText(const std::string& path); //IC05
   void ReadCamerasBinary(const std::string& path);
-  void ReadImagesBinary(const std::string& path);
+  void ReadImagesBinary(const std::string& path,
+                        bool read_point3Dd_ids = true);
   void ReadPoints3DBinary(const std::string& path);
   void ReadPoints3DdBinary(const std::string& path); //IC05
 
