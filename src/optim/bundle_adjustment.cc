@@ -43,6 +43,7 @@
 #include "util/misc.h"
 #include "util/threading.h"
 #include "util/timer.h"
+#include <ceres/manifold.h>
 
 namespace colmap {
 
@@ -416,15 +417,15 @@ void BundleAdjuster::AddImageToProblem(const image_t image_id,
 
     // Set pose parameterization.
     if (!constant_pose) {
-      ceres::LocalParameterization* quaternion_parameterization =
-          new ceres::QuaternionParameterization;
-      problem_->SetParameterization(qvec_data, quaternion_parameterization);
+      problem_->SetManifold(qvec_data, new ceres::QuaternionManifold);
       if (config_.HasConstantTvec(image_id)) {
         const std::vector<int>& constant_tvec_idxs =
             config_.ConstantTvec(image_id);
-        ceres::SubsetParameterization* tvec_parameterization =
-            new ceres::SubsetParameterization(3, constant_tvec_idxs);
-        problem_->SetParameterization(tvec_data, tvec_parameterization);
+        problem_->SetManifold(
+    tvec_data,
+    new ceres::SubsetManifold(3, constant_tvec_idxs));
+
+        
       }
     }
   }
@@ -511,11 +512,10 @@ void BundleAdjuster::ParameterizeCameras(Reconstruction* reconstruction) {
       }
 
       if (const_camera_params.size() > 0) {
-        ceres::SubsetParameterization* camera_params_parameterization =
-            new ceres::SubsetParameterization(
-                static_cast<int>(camera.NumParams()), const_camera_params);
-        problem_->SetParameterization(camera.ParamsData(),
-                                      camera_params_parameterization);
+        problem_->SetManifold(
+            camera.ParamsData(),
+            new ceres::SubsetManifold(camera.NumParams(), const_camera_params));
+
       }
     }
   }
@@ -1058,9 +1058,10 @@ void RigBundleAdjuster::AddImageToProblem(const image_t image_id,
     if (!constant_pose && constant_tvec) {
       const std::vector<int>& constant_tvec_idxs =
           config_.ConstantTvec(image_id);
-      ceres::SubsetParameterization* tvec_parameterization =
-          new ceres::SubsetParameterization(3, constant_tvec_idxs);
-      problem_->SetParameterization(tvec_data, tvec_parameterization);
+      problem_->SetManifold(
+    tvec_data,
+    new ceres::SubsetManifold(3, constant_tvec_idxs));
+
     }
   }
 }
@@ -1143,9 +1144,7 @@ void RigBundleAdjuster::ComputeCameraRigPoses(
 
 void RigBundleAdjuster::ParameterizeCameraRigs(Reconstruction* reconstruction) {
   for (double* qvec_data : parameterized_qvec_data_) {
-    ceres::LocalParameterization* quaternion_parameterization =
-        new ceres::QuaternionParameterization;
-    problem_->SetParameterization(qvec_data, quaternion_parameterization);
+    problem_->SetManifold(qvec_data, new ceres::QuaternionManifold);
   }
 }
 

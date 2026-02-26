@@ -76,10 +76,14 @@ int RunGraphicalUserInterface(int argc, char** argv) {
 int RunProjectGenerator(int argc, char** argv) {
   std::string output_path;
   std::string quality = "high";
+  std::string database_path;
+  std::string image_path;
 
   OptionManager options;
   options.AddRequiredOption("output_path", &output_path);
   options.AddDefaultOption("quality", &quality, "{low, medium, high, extreme}");
+  options.AddDefaultOption("database_path", &database_path);
+  options.AddDefaultOption("image_path", &image_path);
   options.Parse(argc, argv);
 
   OptionManager output_options;
@@ -96,6 +100,14 @@ int RunProjectGenerator(int argc, char** argv) {
     output_options.ModifyForExtremeQuality();
   } else {
     LOG(FATAL) << "Invalid quality provided";
+  }
+
+  if (!database_path.empty()) {
+    *output_options.database_path = database_path;
+  }
+
+  if (!image_path.empty()) {
+    *output_options.image_path = image_path;
   }
 
   output_options.Write(output_path);

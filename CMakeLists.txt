@@ -85,6 +85,11 @@ if(OPENMP_ENABLED)
     find_package(OpenMP QUIET)
 endif()
 
+# Prefer config packages that define modern imported targets
+find_package(glog CONFIG REQUIRED)   # defines glog::glog on Ubuntu
+find_package(Ceres CONFIG REQUIRED)
+
+
 find_package(Ceres REQUIRED)
 
 find_package(Boost REQUIRED COMPONENTS

@@ -274,6 +274,9 @@ int RunMapperBundle(int argc, char** argv) {
   options.AddMapperOptions();
   options.Parse(argc, argv);
 
+  // Match GUI "Start reconstruction bundled" behavior.
+  options.mapper->bundle_reconstruction = true;
+
   if (!ExistsDir(output_path)) {
     std::cerr << "ERROR: `output_path` is not a directory." << std::endl;
     return EXIT_FAILURE;
@@ -331,7 +334,7 @@ int RunMapperBundle(int argc, char** argv) {
   // In case the reconstruction is continued from an existing reconstruction, do
   // not create sub-folders but directly write the results.
   if (input_path != "" && reconstruction_manager.Size() > 0) {
-    reconstruction_manager.Get(0).Write(output_path);
+    reconstruction_manager.Get(0).WriteBundle(output_path);
   }
 
   return EXIT_SUCCESS;
