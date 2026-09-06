@@ -307,6 +307,7 @@ class Reconstruction {
   // Compute statistics for scene.
   size_t ComputeNumObservations() const;
   double ComputeMeanTrackLength() const;
+  double ComputeMeanDiscardedTrackLength() const;
   double ComputeMeanObservationsPerRegImage() const;
   double ComputeMeanReprojectionError() const;
 

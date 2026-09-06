@@ -89,7 +89,6 @@ size_t IncrementalTriangulator::TriangulateImage(const Options& options,
   std::vector<CorrData> corrs_data;
 
   //IC02_1 
-  std::vector<int> points_id;
   std::vector<Track> point_tracks;
   //IC02_2
 
@@ -107,7 +106,6 @@ size_t IncrementalTriangulator::TriangulateImage(const Options& options,
     ref_corr_data.point2D_idx = point2D_idx;
     ref_corr_data.point2D = &point2D;
 
-    points_id.push_back(point2D_idx);     //IC02
     if (num_triangulated == 0) {
       corrs_data.push_back(ref_corr_data);
       num_tris += Create(options, corrs_data, &point_tracks);   //IC02 Add pointer to point_tracks
@@ -121,22 +119,24 @@ size_t IncrementalTriangulator::TriangulateImage(const Options& options,
   }
 
   //IC02_1
-  Database* db_tmp = new Database(str_database_path);
+  Database db_tmp(str_database_path);
 
-  std::vector<int> keypoints_det_curr = db_tmp->ReadKeypointsDet(image_id);
-
-  for (unsigned int i=0; i<point_tracks.size(); i++){
-    keypoints_det_curr[points_id[i]] = 0;
-    for (unsigned int j=0; j<point_tracks[i].Length(); j++){
-      std::vector<int> keypoints_det = db_tmp->ReadKeypointsDet(point_tracks[i].Element(j).image_id);
-      keypoints_det[point_tracks[i].Element(j).point2D_idx] = 0;
-      db_tmp->UpdateKeypointsDet(point_tracks[i].Element(j).image_id, keypoints_det);
+  // Only successful triangulations append a track. The previous code also
+  // appended one reference index for every attempted observation and then
+  // indexed those two unequal populations in parallel. Besides assigning the
+  // wrong metadata, this could access outside keypoints_det and crash the
+  // point_triangulator. Every successfully created track already contains its
+  // reference observation, so update exactly its validated elements.
+  for (const Track& track : point_tracks) {
+    for (size_t j = 0; j < track.Length(); ++j) {
+      const TrackElement& element = track.Element(j);
+      std::vector<int> keypoints_det =
+          db_tmp.ReadKeypointsDet(element.image_id);
+      CHECK_LT(element.point2D_idx, keypoints_det.size());
+      keypoints_det[element.point2D_idx] = 0;
+      db_tmp.UpdateKeypointsDet(element.image_id, keypoints_det);
     }
   }
-
-  db_tmp->UpdateKeypointsDet(image_id, keypoints_det_curr);
-
-  delete db_tmp;
   //IC02_2
 
   
@@ -325,7 +325,6 @@ size_t IncrementalTriangulator::Retriangulate(const Options& options,
   re_options.continue_max_angle_error = options.re_max_angle_error;
 
   //IC02_1
-  std::vector<int> image_ids;
   std::vector<Track> point_tracks;
   //IC02_2
 
@@ -412,7 +411,6 @@ size_t IncrementalTriangulator::Retriangulate(const Options& options,
         const std::vector<CorrData> corrs_data = {corr_data1, corr_data2};
         // Do not use larger triangulation threshold as this causes
         // significant drift when creating points (options vs. re_options).
-        image_ids.push_back(image_id1);     //IC02
         num_tris += Create(options, corrs_data, &point_tracks);    //IC02 add image tracks
       }
       // Else both points have a 3D point, but we do not want to
@@ -421,17 +419,18 @@ size_t IncrementalTriangulator::Retriangulate(const Options& options,
   }
 
   //IC02_1
-  Database* db_tmp = new Database(str_database_path);
+  Database db_tmp(str_database_path);
 
-  for (unsigned int i=0; i<point_tracks.size(); i++){
-    for (unsigned int j=0; j<point_tracks[i].Length(); j++){
-      std::vector<int> keypoints_det = db_tmp->ReadKeypointsDet(point_tracks[i].Element(j).image_id);
-      keypoints_det[point_tracks[i].Element(j).point2D_idx] = 0;
-      db_tmp->UpdateKeypointsDet(point_tracks[i].Element(j).image_id, keypoints_det);
+  for (const Track& track : point_tracks) {
+    for (size_t j = 0; j < track.Length(); ++j) {
+      const TrackElement& element = track.Element(j);
+      std::vector<int> keypoints_det =
+          db_tmp.ReadKeypointsDet(element.image_id);
+      CHECK_LT(element.point2D_idx, keypoints_det.size());
+      keypoints_det[element.point2D_idx] = 0;
+      db_tmp.UpdateKeypointsDet(element.image_id, keypoints_det);
     }
   }
-
-  delete db_tmp;
   //IC02_2
 
   return num_tris;
@@ -584,12 +583,12 @@ size_t IncrementalTriangulator::Create(
   modified_point3D_ids_.insert(point3D_id);
 
   const size_t kMinRecursiveTrackLength = 3;
-  if (create_corrs_data.size() - track.Length() >= kMinRecursiveTrackLength) {
-    return track.Length() + Create(options, create_corrs_data);
-  }
-
   if (pt_tracks){
     pt_tracks->push_back(track);
+  }
+
+  if (create_corrs_data.size() - track.Length() >= kMinRecursiveTrackLength) {
+    return track.Length() + Create(options, create_corrs_data, pt_tracks);
   }
 
   return track.Length();

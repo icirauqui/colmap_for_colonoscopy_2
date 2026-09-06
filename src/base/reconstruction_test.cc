@@ -580,6 +580,26 @@ BOOST_AUTO_TEST_CASE(TestComputeMeanTrackLength) {
   BOOST_CHECK_EQUAL(reconstruction.ComputeMeanTrackLength(), 3);
 }
 
+BOOST_AUTO_TEST_CASE(TestComputeMeanDiscardedTrackLength) {
+  Reconstruction reconstruction;
+  CorrespondenceGraph correspondence_graph;
+  GenerateReconstruction(2, &reconstruction, &correspondence_graph);
+  BOOST_CHECK_EQUAL(reconstruction.ComputeMeanDiscardedTrackLength(), 0);
+
+  const point3D_t point3D_id1 =
+      reconstruction.AddPoint3D(Eigen::Vector3d::Random(), Track());
+  reconstruction.AddObservation(point3D_id1, TrackElement(1, 0));
+  reconstruction.AddObservation(point3D_id1, TrackElement(2, 0));
+  reconstruction.AddPoint3Dd(point3D_id1);
+  BOOST_CHECK_EQUAL(reconstruction.ComputeMeanDiscardedTrackLength(), 2);
+
+  const point3D_t point3D_id2 =
+      reconstruction.AddPoint3D(Eigen::Vector3d::Random(), Track());
+  reconstruction.AddObservation(point3D_id2, TrackElement(1, 1));
+  reconstruction.AddPoint3Dd(point3D_id2);
+  BOOST_CHECK_EQUAL(reconstruction.ComputeMeanDiscardedTrackLength(), 1.5);
+}
+
 BOOST_AUTO_TEST_CASE(TestComputeMeanObservationsPerRegImage) {
   Reconstruction reconstruction;
   CorrespondenceGraph correspondence_graph;

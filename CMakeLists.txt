@@ -96,7 +96,6 @@ find_package(Boost REQUIRED COMPONENTS
              program_options
              filesystem
              graph
-             system
              unit_test_framework)
 
 find_package(Eigen3 REQUIRED)
@@ -304,7 +303,6 @@ set(COLMAP_EXTERNAL_LIBRARIES
     ${CMAKE_DL_LIBS}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
-    ${Boost_SYSTEM_LIBRARY}
     ${GLOG_LIBRARIES}
     ${FREEIMAGE_LIBRARIES}
     ${CERES_LIBRARIES}

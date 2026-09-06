@@ -138,7 +138,8 @@ class IncrementalMapper {
     bool bundle_reconstruction = false;
 
     // IC03 - Current starting image
-    unsigned int start_image_id = 0;
+    // COLMAP database image identifiers are one-based.
+    int start_image_id = 1;
 
     // Method to find and select next best image to register.
     enum class ImageSelectionMethod {

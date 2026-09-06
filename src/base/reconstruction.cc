@@ -899,6 +899,17 @@ double Reconstruction::ComputeMeanTrackLength() const {
   }
 }
 
+double Reconstruction::ComputeMeanDiscardedTrackLength() const {
+  if (points3Dd_.empty()) {
+    return 0.0;
+  }
+  size_t num_observations = 0;
+  for (const auto& point3D : points3Dd_) {
+    num_observations += point3D.second.Track().Length();
+  }
+  return num_observations / static_cast<double>(points3Dd_.size());
+}
+
 double Reconstruction::ComputeMeanObservationsPerRegImage() const {
   if (reg_image_ids_.empty()) {
     return 0.0;
@@ -2474,7 +2485,8 @@ void Reconstruction::WritePoints3DdText(const std::string& path) const {
           "TRACK[] as (IMAGE_ID, POINT2D_IDX)"
        << std::endl;
   file << "# Number of points: " << points3Dd_.size()
-       << ", mean track length: " << ComputeMeanTrackLength() << std::endl;
+       << ", mean track length: " << ComputeMeanDiscardedTrackLength()
+       << std::endl;
 
   for (const auto& point3D : points3Dd_) {
     file << point3D.first << " ";

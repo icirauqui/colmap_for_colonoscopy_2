@@ -515,7 +515,11 @@ int RunPointTriangulator(int argc, char** argv) {
     std::cout << "  => Image sees " << num_existing_points3D << " / "
               << image.NumObservations() << " points" << std::endl;
 
-    mapper.TriangulateImage(tri_options, image_id);
+    // The colonoscopy fork records newly triangulated tracks in its extended
+    // keypoint metadata. Pass the database path added to TriangulateImage;
+    // otherwise the default empty path leads to an empty metadata vector and
+    // an out-of-bounds access on the first image.
+    mapper.TriangulateImage(tri_options, image_id, *options.database_path);
 
     std::cout << "  => Triangulated "
               << (image.NumPoints3D() - num_existing_points3D) << " points"

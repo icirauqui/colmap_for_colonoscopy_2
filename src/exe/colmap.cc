@@ -37,6 +37,8 @@
 #include "exe/mvs.h"
 #include "exe/sfm.h"
 #include "exe/vocab_tree.h"
+#include "base/reconstruction.h"
+#include "util/option_manager.h"
 #include "util/version.h"
 
 namespace {

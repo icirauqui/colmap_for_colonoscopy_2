@@ -75,6 +75,7 @@ float RankNextImageMinUncertainty(const Image& image) {
 }  // namespace
 
 bool IncrementalMapper::Options::Check() const {
+  CHECK_OPTION_GT(start_image_id, 0);
   CHECK_OPTION_GT(init_min_num_inliers, 0);
   CHECK_OPTION_GT(init_max_error, 0.0);
   CHECK_OPTION_GE(init_max_forward_motion, 0.0);
@@ -103,7 +104,8 @@ void IncrementalMapper::Options::increase_start_image_id() {
 
 //IC03
 void IncrementalMapper::Options::reset_start_image_id() {
-  start_image_id = 0;
+  // COLMAP database image identifiers are one-based.
+  start_image_id = 1;
 }
 
 IncrementalMapper::IncrementalMapper(const DatabaseCache* database_cache)
@@ -872,8 +874,9 @@ std::vector<image_t> IncrementalMapper::FindFirstInitialImage(
   for (const auto& image : reconstruction_->Images()) {
     //IC03 - only use images from active bundle
     if (options.bundle_reconstruction && (
-        image.first < options.start_image_id || 
-        image.first > (options.start_image_id + options.bundle_size - 1)))
+        image.first < static_cast<image_t>(options.start_image_id) ||
+        image.first > static_cast<image_t>(options.start_image_id +
+                                           options.bundle_size - 1)))
       continue;
 
     // Only images with correspondences can be registered.
@@ -966,8 +969,9 @@ std::vector<image_t> IncrementalMapper::FindSecondInitialImage(
 
     //IC03 - only use images from active bundle
     if (options.bundle_reconstruction && (
-        elem.first < options.start_image_id || 
-        elem.first > (options.start_image_id + options.bundle_size - 1)))
+        elem.first < static_cast<image_t>(options.start_image_id) ||
+        elem.first > static_cast<image_t>(options.start_image_id +
+                                          options.bundle_size - 1)))
       continue;
 
     if (elem.second >= init_min_num_inliers) {

@@ -173,7 +173,8 @@ void MainWindow::CreateActions() {
 
   action_import_multiple_ =
       new QAction(QIcon(":/media/import.png"), tr("Import multiple models"), this);
-  connect(action_import_multiple_, &QAction::triggered, this, &MainWindow::ImportMultiple);
+  connect(action_import_multiple_, &QAction::triggered, this,
+          [this]() { ImportMultiple(); });
   blocking_actions_.push_back(action_import_multiple_);
 
   action_import_from_ = new QAction(QIcon(":/media/import-from.png"),
@@ -743,7 +744,10 @@ void MainWindow::ImportMultiple() {
     return;
   }
 
+  ImportMultiple(import_path_root);
+}
 
+void MainWindow::ImportMultiple(const std::string& import_path_root) {
   // Get all folders in import_path_root
   QDir directory(QString::fromStdString(import_path_root));
   QStringList qfolders = directory.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -758,7 +762,25 @@ void MainWindow::ImportMultiple() {
   // Print folders
   std::vector<std::string> folders;
   for (int i = 0; i < qfolders.size(); i++) {
-    folders.push_back(qfolders[i].toUtf8().constData());
+    const std::string folder = qfolders[i].toUtf8().constData();
+    if (folder == "global") {
+      folders.push_back(folder);
+      continue;
+    }
+    size_t parsed = 0;
+    try {
+      const int index = std::stoi(folder, &parsed);
+      if (parsed == folder.size() && index >= 0) {
+        folders.push_back(folder);
+      }
+    } catch (const std::exception&) {
+      // Ignore metadata directories such as window_lists.
+    }
+  }
+  if (folders.empty()) {
+    QMessageBox::warning(this, tr("Warning"),
+                         tr("No numbered model folders found in directory"));
+    return;
   }
 
   // If folder "global" exists, remove it
@@ -802,7 +824,6 @@ void MainWindow::ImportMultiple() {
   }
   std::cout << std::endl;
 
-  int count = 0;
   for (auto folder : folders) {
 
     std::string import_path = import_path_root + "/" + folder + "/";
@@ -847,11 +868,7 @@ void MainWindow::ImportMultiple() {
       }
     }
 
-    const size_t idx = reconstruction_manager_.Read(import_path);
-
-    //if (count++ == 12) {
-    //  break;
-    //}
+    reconstruction_manager_.Read(import_path);
 
   }
   reconstruction_manager_widget_->Update();

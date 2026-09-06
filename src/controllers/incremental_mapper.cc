@@ -146,6 +146,10 @@ void ExtractColors(const std::string& image_path, const image_t image_id,
 void WriteSnapshot(const Reconstruction& reconstruction,
                    const std::string& snapshot_path) {
   PrintHeading1("Creating snapshot");
+  // `CreateDirIfNotExists` is intentionally non-recursive.  Create the
+  // configured snapshot root before its timestamped child so a fresh output
+  // directory does not abort an otherwise valid reconstruction.
+  CreateDirIfNotExists(snapshot_path);
   // Get the current timestamp in milliseconds.
   const size_t timestamp =
       std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -325,6 +329,17 @@ void IncrementalMapperController::Run() {
 
   Reconstruct(init_mapper_options);  //IC03 add num relaxations
 
+  // Bundled reconstruction already traverses every temporal window inside a
+  // single Reconstruct call. Re-running it for global initialization
+  // relaxations resets start_image_id and emits duplicate copies of the same
+  // windows. Bundle-specific thresholds must be supplied explicitly instead.
+  if (options_->bundle_reconstruction) {
+    std::cout << std::endl;
+    UpdateMapper(init_mapper_options, true);
+    GetTimer().PrintMinutes();
+    return;
+  }
+
   const size_t kNumInitRelaxations = 2;
   for (size_t i = 0; i < kNumInitRelaxations; ++i) {
     if (!options_->bundle_reconstruction &&   //IC03
@@ -440,13 +455,18 @@ void IncrementalMapperController::Reconstruct(
   //IC03_1 - if we are doing bundled reconstruction set num trials to (totFrames-bundle_size)
   int max_num_trials = options_->init_num_trials;
   if (init_mapper_options.bundle_reconstruction){
-    max_num_trials = floor((database_cache_.NumImages() - init_mapper_options.bundle_size) / init_mapper_options.frames_between_bundles);
+    const size_t num_images = database_cache_.NumImages();
+    const size_t bundle_size = init_mapper_options.bundle_size;
+    const size_t stride = init_mapper_options.frames_between_bundles;
+    max_num_trials = num_images <= bundle_size
+                         ? 1
+                         : 1 + static_cast<int>((num_images - bundle_size) / stride);
   }
   //IC03_2
 
   //IC03
   if (bBundle)
-      std::cout << "IC03 blank bundled reconstruction [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "]" << std::endl;
+      std::cout << "IC03 blank bundled reconstruction [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size - 1 << "]" << std::endl;
 
   //IC03 for (int num_trials = 0; num_trials < options_->init_num_trials;
   //IC03     ++num_trials) {
@@ -475,7 +495,7 @@ void IncrementalMapperController::Reconstruct(
 
     //IC03
     if (bBundle)
-      std::cout << "IC03 img range bundled reconstruction " << num_reconstructions << " [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "]" << std::endl;
+      std::cout << "IC03 img range bundled reconstruction " << num_reconstructions << " [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size - 1 << "]" << std::endl;
 
 
     ////////////////////////////////////////////////////////////////////////////
@@ -544,7 +564,7 @@ void IncrementalMapperController::Reconstruct(
 
       //IC03
       if (bBundle)
-        std::cout << "IC03 new reconstruction [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "]" << std::endl;
+        std::cout << "IC03 new reconstruction [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size - 1 << "]" << std::endl;
 
       AdjustGlobalBundle(*options_, &mapper);
       FilterPoints(*options_, &mapper);
@@ -601,7 +621,7 @@ void IncrementalMapperController::Reconstruct(
 
       //IC03
       if (bBundle){
-        std::cout << std::endl << "IC03 Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size << "] = ";
+        std::cout << std::endl << "IC03 Next images [" << init_mapper_options.start_image_id << "-" << init_mapper_options.start_image_id + init_mapper_options.bundle_size - 1 << "] = ";
         for (size_t ii = 0; ii < next_images.size(); ii++)
           std::cout << next_images[ii] << " ";
         std::cout << std::endl << std::endl;

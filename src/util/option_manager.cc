@@ -547,6 +547,11 @@ void OptionManager::AddMapperOptions() {
                               &mapper->min_3Ds_for_validation);   //IC07
   AddAndRegisterDefaultOption("Mapper.bundle_reconstruction",     //IC03
                               &mapper->bundle_reconstruction);    //IC03
+  // Expose the database-ID start of a bundled window. The historical default
+  // remains one, but reproducible single-window preflights require selecting
+  // a documented temporal range instead of silently mapping IDs 1..N.
+  AddAndRegisterDefaultOption("Mapper.bundle_start_image_id",
+                              &mapper->mapper.start_image_id);
 
   // IncrementalMapper.
   AddAndRegisterDefaultOption("Mapper.init_min_num_inliers",

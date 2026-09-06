@@ -36,6 +36,26 @@
 
 namespace colmap {
 
+namespace {
+
+std::string FindCommandLineOption(const int argc, char** argv,
+                                  const std::string& name) {
+  const std::string option = "--" + name;
+  const std::string option_prefix = option + "=";
+  for (int i = 1; i < argc; ++i) {
+    const std::string argument = argv[i];
+    if (argument == option && i + 1 < argc) {
+      return argv[i + 1];
+    }
+    if (argument.compare(0, option_prefix.size(), option_prefix) == 0) {
+      return argument.substr(option_prefix.size());
+    }
+  }
+  return "";
+}
+
+}  // namespace
+
 int RunGraphicalUserInterface(int argc, char** argv) {
 #ifndef GUI_ENABLED
   std::cerr << "ERROR: Cannot start colmap GUI; colmap was built without GUI "
@@ -47,10 +67,13 @@ int RunGraphicalUserInterface(int argc, char** argv) {
 
   OptionManager options;
 
-  std::string import_path;
+  std::string import_path = FindCommandLineOption(argc, argv, "import_path");
+  std::string import_path_multiple =
+      FindCommandLineOption(argc, argv, "import_path_multiple");
 
   if (argc > 1) {
     options.AddDefaultOption("import_path", &import_path);
+    options.AddDefaultOption("import_path_multiple", &import_path_multiple);
     options.AddAllOptions();
     options.Parse(argc, argv);
   }
@@ -67,6 +90,9 @@ int RunGraphicalUserInterface(int argc, char** argv) {
 
   if (!import_path.empty()) {
     main_window.ImportReconstruction(import_path);
+  }
+  if (!import_path_multiple.empty()) {
+    main_window.ImportMultiple(import_path_multiple);
   }
 
   return app.exec();
