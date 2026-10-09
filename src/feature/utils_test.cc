@@ -66,6 +66,27 @@ BOOST_AUTO_TEST_CASE(TestL1RootNormalizeFeatureDescriptors) {
   }
 }
 
+BOOST_AUTO_TEST_CASE(TestL1RootNormalizeZeroDescriptors) {
+  const Eigen::MatrixXf empty = Eigen::MatrixXf::Zero(3, 128);
+  const Eigen::MatrixXf normalized = L1RootNormalizeFeatureDescriptors(empty);
+  BOOST_CHECK(normalized.allFinite());
+  BOOST_CHECK(normalized.isZero(0.0f));
+  const FeatureDescriptors encoded = FeatureDescriptorsToUnsignedByte(normalized);
+  BOOST_CHECK(encoded.isZero(0));
+}
+
+BOOST_AUTO_TEST_CASE(TestL1RootNormalizeMixedEmptyDescriptors) {
+  Eigen::MatrixXf descriptors = Eigen::MatrixXf::Zero(3, 128);
+  descriptors.row(1).setConstant(2.0f);
+  const Eigen::MatrixXf normalized = L1RootNormalizeFeatureDescriptors(descriptors);
+  BOOST_CHECK(normalized.allFinite());
+  BOOST_CHECK(normalized.row(0).isZero(0.0f));
+  BOOST_CHECK(normalized.row(2).isZero(0.0f));
+  BOOST_CHECK_SMALL(normalized.row(1).norm() - 1.0f, 1e-6f);
+  const Eigen::MatrixXf valid = L1RootNormalizeFeatureDescriptors(descriptors.middleRows(1, 1));
+  BOOST_CHECK_EQUAL(normalized.row(1), valid.row(0));
+}
+
 BOOST_AUTO_TEST_CASE(TestFeatureDescriptorsToUnsignedByte) {
   Eigen::MatrixXf descriptors = Eigen::MatrixXf::Random(100, 128);
   descriptors.array() += 1.0f;

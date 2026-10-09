@@ -540,7 +540,9 @@ bool ExtractSiftFeaturesCPU(const SiftExtractionOptions& options,
             FeatureKeypoint(vl_keypoints[i].x + 0.5f, vl_keypoints[i].y + 0.5f,
                             vl_keypoints[i].sigma, angles[o]);
         if (descriptors != nullptr) {
-          Eigen::MatrixXf desc(1, 128);
+          // VLFeat may leave the buffer untouched for unsupported border
+          // keypoints. Such features must have a defined empty descriptor.
+          Eigen::MatrixXf desc = Eigen::MatrixXf::Zero(1, 128);
           vl_sift_calc_keypoint_descriptor(sift.get(), desc.data(),
                                            &vl_keypoints[i], angles[o]);
           if (options.normalization ==

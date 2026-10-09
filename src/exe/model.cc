@@ -306,6 +306,7 @@ int RunModelConverter(int argc, char** argv) {
   std::string output_path;
   std::string output_type;
   bool skip_distortion = false;
+  bool preserve_raw_poses = false;
 
   OptionManager options;
   options.AddRequiredOption("input_path", &input_path);
@@ -313,16 +314,29 @@ int RunModelConverter(int argc, char** argv) {
   options.AddRequiredOption("output_type", &output_type,
                             "{BIN, TXT, NVM, Bundler, VRML, PLY, R3D, CAM}");
   options.AddDefaultOption("skip_distortion", &skip_distortion);
+  options.AddDefaultOption("preserve_raw_poses", &preserve_raw_poses,
+                          "Preserve binary pose doubles exactly in TXT output");
   options.Parse(argc, argv);
 
-  Reconstruction reconstruction;
-  reconstruction.Read(input_path);
-
   StringToLower(&output_type);
+  if (preserve_raw_poses &&
+      (output_type != "txt" ||
+       !ExistsFile(JoinPaths(input_path, "images.bin")) ||
+       !ExistsFile(JoinPaths(input_path, "cameras.bin")) ||
+       !ExistsFile(JoinPaths(input_path, "points3D.bin")))) {
+    std::cerr << "ERROR: preserve_raw_poses requires a binary model and TXT output"
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  Reconstruction reconstruction;
+  if (preserve_raw_poses) reconstruction.ReadBinary(input_path, true);
+  else reconstruction.Read(input_path);
+
   if (output_type == "bin") {
     reconstruction.WriteBinary(output_path);
   } else if (output_type == "txt") {
-    reconstruction.WriteText(output_path);
+    reconstruction.WriteText(output_path, preserve_raw_poses);
   } else if (output_type == "nvm") {
     reconstruction.ExportNVM(output_path, skip_distortion);
   } else if (output_type == "bundler") {

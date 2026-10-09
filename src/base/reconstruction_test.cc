@@ -631,3 +631,117 @@ BOOST_AUTO_TEST_CASE(TestComputeMeanReprojectionError) {
   reconstruction.Point3D(point3D_id1).SetError(2.0);
   BOOST_CHECK_EQUAL(reconstruction.ComputeMeanReprojectionError(), 2.0);
 }
+
+// A-EXPORT1 exact-double conversion contract; manufactured, no study data.
+#include <boost/filesystem.hpp>
+#include <fstream>
+#include <sstream>
+#include <cmath>
+#include "util/endian.h"
+BOOST_AUTO_TEST_CASE(TestExactTextRoundTripPrecision) {
+  const auto path = boost::filesystem::temp_directory_path() /
+                    boost::filesystem::unique_path("sdtube-export-%%%%-%%%%");
+  boost::filesystem::create_directories(path);
+  Reconstruction source;
+  Camera camera; camera.SetCameraId(1);
+  camera.InitializeWithName("PINHOLE", 1, 640, 480);
+  camera.SetParams({455.12345678901234, 452.98765432109876,
+                    320.12345678901234, 240.98765432109876});
+  source.AddCamera(camera);
+  Image image; image.SetImageId(1); image.SetCameraId(1);
+  image.SetName("000000.png");
+  image.SetQvec(Eigen::Vector4d(0.91, 0.17, -0.3, 0.2));
+  image.SetTvec(Eigen::Vector3d(1.2345678901234567, -6.9876543210987654,
+                              0.000012345678901234567));
+  image.SetPoints2D(std::vector<Eigen::Vector2d>{
+      Eigen::Vector2d(17.123456789012345, 39.987654321098765)});
+  source.AddImage(image); source.RegisterImage(1);
+  const point3D_t id = source.AddPoint3D(
+      Eigen::Vector3d(3.141592653589793, -2.718281828459045,
+                      0.0000012345678901234567), Track());
+  source.Point3D(id).SetError(0.9876543210987654);
+  source.WriteText(path.string());
+  Reconstruction restored; restored.ReadText(path.string());
+  for (size_t i = 0; i < camera.NumParams(); ++i)
+    BOOST_CHECK_EQUAL(restored.Camera(1).Params(i), camera.Params(i));
+  const Eigen::Vector4d expected_q = NormalizeQuaternion(image.Qvec());
+  std::ifstream pose_file((path / "images.txt").string());
+  std::string row;
+  while (std::getline(pose_file, row)) {
+    if (!row.empty() && row[0] != '#') break;
+  }
+  std::istringstream pose_row(row);
+  image_t parsed_id; pose_row >> parsed_id;
+  BOOST_CHECK_EQUAL(parsed_id, 1);
+  for (int i = 0; i < 4; ++i) {
+    double exported_q; pose_row >> exported_q;
+    BOOST_CHECK_EQUAL(exported_q, expected_q(i));
+  }
+  // ReadImagesText intentionally normalizes the already normalized quaternion.
+  // The raw exported doubles above remain exact; extra normalization adds ULPs.
+  BOOST_CHECK_SMALL((restored.Image(1).Qvec()-expected_q).norm(), 1e-15);
+  for (int i = 0; i < 3; ++i) {
+    BOOST_CHECK_EQUAL(restored.Image(1).Tvec(i), image.Tvec(i));
+    BOOST_CHECK_EQUAL(restored.Point3D(id).XYZ()(i), source.Point3D(id).XYZ()(i));
+  }
+  BOOST_CHECK_EQUAL(restored.Point3D(id).Error(), source.Point3D(id).Error());
+  BOOST_CHECK_EQUAL(restored.Image(1).Point2D(0).X(), image.Point2D(0).X());
+  BOOST_CHECK_EQUAL(restored.Image(1).Point2D(0).Y(), image.Point2D(0).Y());
+  boost::filesystem::remove_all(path);
+}
+
+BOOST_AUTO_TEST_CASE(TestBinaryToTextPreservesRawPoseDoubles) {
+  const auto path = boost::filesystem::temp_directory_path() /
+                    boost::filesystem::unique_path("sdtube-rawpose-%%%%-%%%%");
+  const auto text_path = path / "text";
+  boost::filesystem::create_directories(text_path);
+  Reconstruction source;
+  Camera camera; camera.SetCameraId(1);
+  camera.InitializeWithName("PINHOLE", 455, 640, 480);
+  source.AddCamera(camera);
+  Image image; image.SetImageId(1); image.SetCameraId(1);
+  image.SetName("manufactured.png");
+  image.SetQvec(Eigen::Vector4d(1, 0, 0, 0));
+  image.SetTvec(Eigen::Vector3d(1.2345678901234567,
+                              -6.9876543210987654, 0.000012345678901234567));
+  source.AddImage(image); source.RegisterImage(1);
+  source.WriteBinary(path.string());
+
+  // File quaternion values can already be within one ULP of unit length.
+  // Renormalization changes their raw doubles and can flip the sign.
+  const double s = std::nextafter(1.0, 0.0);
+  const std::vector<Eigen::Vector4d> quaternions = {
+      Eigen::Vector4d(s, 0, 0, 0), Eigen::Vector4d(-s, 0, 0, 0),
+      Eigen::Vector4d(0.8 * s, 0.6 * s, 0, 0)};
+  for (const auto& q : quaternions) {
+    {
+      std::fstream binary((path / "images.bin").string(),
+                          std::ios::in | std::ios::out | std::ios::binary);
+      BOOST_REQUIRE(binary.is_open());
+      binary.seekp(sizeof(uint64_t) + sizeof(image_t));
+      for (int i = 0; i < 4; ++i) WriteBinaryLittleEndian<double>(&binary, q(i));
+    }
+    Reconstruction raw; raw.ReadBinary(path.string(), true);
+    for (int i = 0; i < 4; ++i) BOOST_CHECK_EQUAL(raw.Image(1).Qvec(i), q(i));
+    raw.WriteText(text_path.string(), true);
+    std::ifstream poses((text_path / "images.txt").string());
+    std::string row;
+    while (std::getline(poses, row)) {
+      if (!row.empty() && row[0] != '#') break;
+    }
+    std::istringstream values(row);
+    image_t id; values >> id; BOOST_CHECK_EQUAL(id, 1);
+    for (int i = 0; i < 4; ++i) {
+      double value; values >> value; BOOST_CHECK_EQUAL(value, q(i));
+    }
+    for (int i = 0; i < 3; ++i) {
+      double value; values >> value;
+      BOOST_CHECK_EQUAL(value, image.Tvec(i));
+    }
+    Reconstruction normalized; normalized.ReadBinary(path.string());
+    BOOST_CHECK_SMALL((normalized.Image(1).Qvec() -
+                       NormalizeQuaternion(q)).norm(), 1e-15);
+    if (q(1) == 0) BOOST_CHECK_NE(normalized.Image(1).Qvec(0), q(0));
+  }
+  boost::filesystem::remove_all(path);
+}

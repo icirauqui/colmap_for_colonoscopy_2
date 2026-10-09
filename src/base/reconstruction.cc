@@ -32,6 +32,7 @@
 #include "base/reconstruction.h"
 
 #include <fstream>
+#include <locale>
 
 #include "base/database_cache.h"
 #include "base/gps.h"
@@ -973,10 +974,12 @@ void Reconstruction::ReadText(const std::string& path) {
   }
 }
 
-void Reconstruction::ReadBinary(const std::string& path) {
+void Reconstruction::ReadBinary(const std::string& path,
+                                bool preserve_raw_poses) {
   const bool has_points3Dd = ExistsFile(JoinPaths(path, "points3Dd.bin"));
   ReadCamerasBinary(JoinPaths(path, "cameras.bin"));
-  ReadImagesBinary(JoinPaths(path, "images.bin"), has_points3Dd);
+  ReadImagesBinary(JoinPaths(path, "images.bin"), has_points3Dd,
+                   preserve_raw_poses);
   ReadPoints3DBinary(JoinPaths(path, "points3D.bin"));
   points3Dd_.clear();
   points3Dd2_.clear();
@@ -985,9 +988,10 @@ void Reconstruction::ReadBinary(const std::string& path) {
   }
 }
 
-void Reconstruction::WriteText(const std::string& path) const {
+void Reconstruction::WriteText(const std::string& path,
+                               bool preserve_raw_poses) const {
   WriteCamerasText(JoinPaths(path, "cameras.txt"));
-  WriteImagesText(JoinPaths(path, "images.txt"));
+  WriteImagesText(JoinPaths(path, "images.txt"), preserve_raw_poses);
   WritePoints3DText(JoinPaths(path, "points3D.txt"));
   WritePoints3DdText(JoinPaths(path, "points3Dd.txt"));   //IC01
 }
@@ -2194,7 +2198,8 @@ void Reconstruction::ReadCamerasBinary(const std::string& path) {
 }
 
 void Reconstruction::ReadImagesBinary(const std::string& path,
-                                      bool read_point3Dd_ids) {
+                                      bool read_point3Dd_ids,
+                                      bool preserve_raw_poses) {
   std::ifstream file(path, std::ios::binary);
   CHECK(file.is_open()) << path;
 
@@ -2208,7 +2213,7 @@ void Reconstruction::ReadImagesBinary(const std::string& path,
     image.Qvec(1) = ReadBinaryLittleEndian<double>(&file);
     image.Qvec(2) = ReadBinaryLittleEndian<double>(&file);
     image.Qvec(3) = ReadBinaryLittleEndian<double>(&file);
-    image.NormalizeQvec();
+    if (!preserve_raw_poses) image.NormalizeQvec();
 
     image.Tvec(0) = ReadBinaryLittleEndian<double>(&file);
     image.Tvec(1) = ReadBinaryLittleEndian<double>(&file);
@@ -2333,6 +2338,7 @@ void Reconstruction::WriteCamerasText(const std::string& path) const {
   CHECK(file.is_open()) << path;
 
   // Ensure that we don't loose any precision by storing in text.
+  file.imbue(std::locale::classic());
   file.precision(17);
 
   file << "# Camera list with one line of data per camera:" << std::endl;
@@ -2341,6 +2347,8 @@ void Reconstruction::WriteCamerasText(const std::string& path) const {
 
   for (const auto& camera : cameras_) {
     std::ostringstream line;
+    line.imbue(std::locale::classic());
+    line.precision(17);
 
     line << camera.first << " ";
     line << camera.second.ModelName() << " ";
@@ -2360,11 +2368,13 @@ void Reconstruction::WriteCamerasText(const std::string& path) const {
   file.close();   //IC07
 }
 
-void Reconstruction::WriteImagesText(const std::string& path) const {
+void Reconstruction::WriteImagesText(const std::string& path,
+                                     bool preserve_raw_poses) const {
   std::ofstream file(path, std::ios::trunc);
   CHECK(file.is_open()) << path;
 
   // Ensure that we don't loose any precision by storing in text.
+  file.imbue(std::locale::classic());
   file.precision(17);
 
   file << "# Image list with two lines of data per image:" << std::endl;
@@ -2382,13 +2392,15 @@ void Reconstruction::WriteImagesText(const std::string& path) const {
     }
 
     std::ostringstream line;
+    line.imbue(std::locale::classic());
+    line.precision(17);
     std::string line_string;
 
     line << image.first << " ";
 
     // QVEC (qw, qx, qy, qz)
-    const Eigen::Vector4d normalized_qvec =
-        NormalizeQuaternion(image.second.Qvec());
+    const Eigen::Vector4d normalized_qvec = preserve_raw_poses
+        ? image.second.Qvec() : NormalizeQuaternion(image.second.Qvec());
     line << normalized_qvec(0) << " ";
     line << normalized_qvec(1) << " ";
     line << normalized_qvec(2) << " ";
@@ -2437,6 +2449,7 @@ void Reconstruction::WritePoints3DText(const std::string& path) const {
   CHECK(file.is_open()) << path;
 
   // Ensure that we don't loose any precision by storing in text.
+  file.imbue(std::locale::classic());
   file.precision(17);
 
   file << "# 3D point list with one line of data per point:" << std::endl;
@@ -2457,6 +2470,8 @@ void Reconstruction::WritePoints3DText(const std::string& path) const {
     file << point3D.second.Error() << " ";
 
     std::ostringstream line;
+    line.imbue(std::locale::classic());
+    line.precision(17);
 
     for (const auto& track_el : point3D.second.Track().Elements()) {
       line << track_el.image_id << " ";
@@ -2478,6 +2493,7 @@ void Reconstruction::WritePoints3DdText(const std::string& path) const {
   CHECK(file.is_open()) << path;
 
   // Ensure that we don't loose any precision by storing in text.
+  file.imbue(std::locale::classic());
   file.precision(17);
 
   file << "# 3Dd point list with one line of data per point:" << std::endl;
@@ -2499,6 +2515,8 @@ void Reconstruction::WritePoints3DdText(const std::string& path) const {
     file << point3D.second.Error() << " ";
 
     std::ostringstream line;
+    line.imbue(std::locale::classic());
+    line.precision(17);
 
     for (const auto& track_el : point3D.second.Track().Elements()) {
       line << track_el.image_id << " ";

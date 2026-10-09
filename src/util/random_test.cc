@@ -33,9 +33,12 @@
 #include "util/testing.h"
 
 #include <numeric>
+#include <thread>
+#include "FLANN/util/random.h"
 
 #include "util/math.h"
 #include "util/random.h"
+#include "util/option_manager.h"
 
 using namespace colmap;
 
@@ -128,4 +131,30 @@ BOOST_AUTO_TEST_CASE(TestShuffleAll) {
     }
   }
   BOOST_CHECK_GT(num_shuffled, 0);
+}
+
+// A-RNG1: another pipeline stage must not reseed FLANN's local sequence.
+BOOST_AUTO_TEST_CASE(TestFLANNSeedIsolation) {
+  SetPRNGSeed(7);
+  const int first = flann::rand_int(1000000);
+  const int second = flann::rand_int(1000000);
+  SetPRNGSeed(7);
+  BOOST_CHECK_EQUAL(first, flann::rand_int(1000000));
+  std::thread other([]() { SetPRNGSeed(999); flann::rand_int(1000000); });
+  other.join();
+  BOOST_CHECK_EQUAL(second, flann::rand_int(1000000));
+}
+BOOST_AUTO_TEST_CASE(TestSharedDefaultSeed) {
+  const int saved = kDefaultPRNGSeed;
+  OptionManager options;
+  char name[] = "rng_test", option[] = "--random_seed", value[] = "13";
+  char* argv[] = {name, option, value};
+  options.Parse(3, argv);
+  BOOST_CHECK_EQUAL(kDefaultPRNGSeed, 13);
+  double actual = 0;
+  std::thread worker([&actual]() { actual = flann::rand_double(); });
+  worker.join();
+  SetPRNGSeed(13);
+  BOOST_CHECK_EQUAL(actual, flann::rand_double());
+  kDefaultPRNGSeed = saved;
 }

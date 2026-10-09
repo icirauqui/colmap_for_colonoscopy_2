@@ -64,6 +64,11 @@ Eigen::MatrixXf L1RootNormalizeFeatureDescriptors(
                                          descriptors.cols());
   for (Eigen::MatrixXf::Index r = 0; r < descriptors.rows(); ++r) {
     const float norm = descriptors.row(r).lpNorm<1>();
+    // An unavailable/empty descriptor stays finite and exactly zero.
+    if (norm == 0.0f) {
+      descriptors_normalized.row(r).setZero();
+      continue;
+    }
     descriptors_normalized.row(r) = descriptors.row(r) / norm;
     descriptors_normalized.row(r) =
         descriptors_normalized.row(r).array().sqrt();

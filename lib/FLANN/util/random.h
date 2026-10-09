@@ -37,6 +37,7 @@
 #include <vector>
 
 #include "FLANN/general.h"
+#include "util/random.h"
 
 namespace flann
 {
@@ -47,7 +48,7 @@ namespace flann
  */
 inline void seed_random(unsigned int seed)
 {
-    srand(seed);
+    colmap::SetPRNGSeed(seed);
 }
 
 /*
@@ -61,7 +62,7 @@ inline void seed_random(unsigned int seed)
  */
 inline double rand_double(double high = 1.0, double low = 0)
 {
-    return low + ((high-low) * (std::rand() / (RAND_MAX + 1.0)));
+    return low + ((high-low) * colmap::RandomReal<double>(0.0, 1.0));
 }
 
 /**
@@ -72,7 +73,7 @@ inline double rand_double(double high = 1.0, double low = 0)
  */
 inline int rand_int(int high = RAND_MAX, int low = 0)
 {
-    return low + (int) ( double(high-low) * (std::rand() / (RAND_MAX + 1.0)));
+    return low + (int) ( double(high-low) * colmap::RandomReal<double>(0.0, 1.0));
 }
 
 

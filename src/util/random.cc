@@ -35,6 +35,7 @@
 
 namespace colmap {
 
+int kDefaultPRNGSeed = 0;
 thread_local std::unique_ptr<std::mt19937> PRNG;
 
 void SetPRNGSeed(unsigned seed) {

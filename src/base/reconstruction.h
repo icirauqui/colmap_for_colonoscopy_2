@@ -318,10 +318,13 @@ class Reconstruction {
 
   // Read data from binary/text file.
   void ReadText(const std::string& path);
-  void ReadBinary(const std::string& path);
+  // The opt-in conversion mode preserves stored quaternion doubles verbatim.
+  // Estimation callers retain the default normalization behavior.
+  void ReadBinary(const std::string& path, bool preserve_raw_poses = false);
 
   // Write data from binary/text file.
-  void WriteText(const std::string& path) const;
+  void WriteText(const std::string& path,
+                 bool preserve_raw_poses = false) const;
   void WriteBinary(const std::string& path) const;
 
   // Convert 3D points in reconstruction to PLY point cloud.
@@ -454,12 +457,14 @@ class Reconstruction {
   void ReadPoints3DdText(const std::string& path); //IC05
   void ReadCamerasBinary(const std::string& path);
   void ReadImagesBinary(const std::string& path,
-                        bool read_point3Dd_ids = true);
+                        bool read_point3Dd_ids = true,
+                        bool preserve_raw_poses = false);
   void ReadPoints3DBinary(const std::string& path);
   void ReadPoints3DdBinary(const std::string& path); //IC05
 
   void WriteCamerasText(const std::string& path) const;
-  void WriteImagesText(const std::string& path) const;
+  void WriteImagesText(const std::string& path,
+                       bool preserve_raw_poses = false) const;
   void WritePoints3DText(const std::string& path) const;
 
   //IC01
