@@ -1,98 +1,106 @@
-COLMAP FOR COLONOSCOPY 2
-======
+# COLMAP for colonoscopy 2
 
+A research derivative of [COLMAP for colonoscopy](https://github.com/UZ-SLAMLab/colmap_for_colonoscopy),
+with temporal-window reconstruction, discarded-track diagnostics and corrected
+feature handling and model export. This is **Pipeline A** in the
+Synthetic Deformable Tubular Benchmark study. It is maintained by
+**Íñigo Cirauqui-Viloria** and is separate from official COLMAP and the study's
+[COLMAP 4.2.0 Pipeline B](https://github.com/icirauqui/colmap).
 
-About
------
+The maintained branch is **`main`**. The corrected source release is
+[`3.7-colonoscopy.1`](https://github.com/icirauqui/colmap_for_colonoscopy_2/tree/3.7-colonoscopy.1).
+The program's inherited version string remains `3.7`; identify this fork's tag
+or commit as well. See [FORK_CHANGES.md](FORK_CHANGES.md) for source lineage,
+corrections, regression controls and scientific execution boundaries.
 
-This COLMAP version has been modified aiming to identify and analize the pressence of tissue deformation in medical procedures,
-it stores the 3D points discarded by the Bundle Adjustement due to not complying with the rigidity asumption.
+## Dataset and reproducibility material
 
-**Modified Files:**
+- [Synthetic Deformable Tubular Benchmark](https://doi.org/10.57967/hf/10850):
+  scientific data version 1.0.0, public naming/package edition `v1.0.1`.
+- [Reproducibility material](https://doi.org/10.57967/hf/10851): `v1.1.0`,
+  with frozen protocols, source/control records, qualified runtime archives,
+  final feature databases, models, predictions and evaluation records.
+- [LumenMorph](https://github.com/icirauqui/LumenMorph): the separate synthetic
+  data generator and evaluation tools.
 
-All changes can be identified by commented snippet "ICxx": 
+The resource provides controlled synthetic observations. Reconstruction
+disagreement and discarded tracks are diagnostics; neither uniquely measures
+physical tissue deformation or establishes clinical validity.
 
-IC01 - Store pointes removed because of large reprojection error or small triangulation angle
+## Features retained in this release
 
-* colmap/src/base/reconstruction.h
-* colmap/src/base/reconstruction.cc
-* colmap/src/exe/reconstruction.cc
+- Calibrated two-view geometry and guided matching inherited from the original
+  colonoscopy adaptation.
+- Storage and display of discarded points and tracks, and tracking of points
+  that re-enter the reconstruction.
+- Temporal-window reconstruction through the CLI `mapper_bundle` command and
+  the GUI's bundled reconstruction workflow.
+- Import of numbered model directories and a separate `global` reconstruction,
+  including `gui --import_path_multiple`.
+- Standard COLMAP model reading plus optional discarded-point extensions;
+  accurate text export and opt-in lossless binary-pose conversion.
 
-IC02 - Draw IC01 points in images.
+## Build and test
 
- * colmap/src/base/database.h
- * colmap/src/base/database.cc
- * colmap/src/ui/image_viewer_widget.h
- * colmap/src/ui/image_viewer_widget.cc
- * colmap/src/ui/database_management_widget.cc
+Clone the fixed source release:
 
-IC03 - Add batched reconstruction option to gui
+```bash
+git clone --branch 3.7-colonoscopy.1 https://github.com/icirauqui/colmap_for_colonoscopy_2.git
+cd colmap_for_colonoscopy_2
+```
 
-* colmap/src/ui/main_window.h
-* colmap/src/ui/main_window.cc
-* colmap/src/controllers/incremental_mapper.h
-* colmap/src/controllers/incremental_mapper.cc
-* colmap/src/sfm/incremental_mapper.h
-* colmap/src/sfm/incremental_mapper.cc
-* colmap/src/estimators/two_view_geometry.cc
-* colmap/src/feature/sift.cc
-* colmap/src/ui/start_reconstruction_bundle_widget_.h    (new file)
-* colmap/src/ui/start_reconstruction_bundle_widget_.cc   (new file)
+This fork uses a C++17 compiler and the Ceres 2.x manifold API. It also requires
+CMake, Boost program-options/filesystem/graph/test, Eigen, FreeImage, glog,
+OpenGL and GLEW development libraries. GUI builds additionally require Qt5;
+CUDA and CGAL are optional. The inherited [installation guide](doc/install.rst)
+provides dependency background; its historical compiler/Ceres instructions
+must be read with the requirements above.
 
-IC04 - Track reborn 3D points.
+Example CPU-only CLI configuration, using a separate local installation prefix:
 
-* colmap/src/base/reconstruction.h
-* colmap/src/base/reconstruction.cc
-* colmap/src/exe/reconstruction.cc
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_INSTALL_PREFIX="$PWD/install" \
+  -DGUI_ENABLED=OFF -DOPENGL_ENABLED=OFF -DCUDA_ENABLED=OFF \
+  -DCGAL_ENABLED=OFF -DTESTS_ENABLED=ON
+cmake --build build --parallel 4
+ctest --test-dir build --output-on-failure \
+  -R '^(util/random_test|feature/sift_test|feature/utils_test|base/database_test|base/reconstruction_test)$'
+build/src/exe/colmap -h
+```
 
-IC05 - Draw all keypoints segregating triangulated, draw projection of 3D points, draw reprojection error.
+Enable `GUI_ENABLED` and `OPENGL_ENABLED` to build the retained Qt interface.
+Official COLMAP binaries do not contain this fork's changes. This configuration
+describes a source build; the study's exact source/compiler/dependency/runtime
+and CPU contracts are recorded separately in the reproducibility material.
+Publishing this release does not assert a new native build or experiment.
 
-* colmap/src/ui/database_management_widget.cc
+Lossless conversion of stored binary pose values is explicit:
 
-IC06 - Matching by epipolar geometry instead of image distortion.
+```bash
+build/src/exe/colmap model_converter \
+  --input_path /path/to/binary_model --output_path /path/to/text_model \
+  --output_type TXT --preserve_raw_poses 1
+```
 
-* colmap/src/estimators/two_view_geometry.cc
-* colmap/src/feature/matching.cc
-* colmap/src/sfm/incremental_mapper.h
-* colmap/src/feature/sift.h
-* colmap/src/feature/sift.cc
+This mode accepts binary input and TXT output. Default reading/conversion keeps
+the inherited quaternion normalization behavior.
 
-IC07 - Add bundled mapper option to command line
+## Attribution, citation and licensing
 
-* colmap/src/exe/colmap.cc
-* colmap/src/exe/sfm.h
-* colmap/src/exe/sfm.cc
-* colmap/src/util/option_manager.cc
-* colmap/src/base/reconstruction.cc
-* colmap/src/exe/reconstruction.cc
+The original colonoscopy adaptation is by **José Daniel Subías Sarrato**,
+developed at UZ-SLAMLab under José María Martínez Montiel. It accompanies
+[his 2021 bachelor's thesis](https://zaguan.unizar.es/record/106905/files/TAZ-TFG-2021-2094.pdf).
+Subsequent bundled reconstruction and diagnostic developments accompany
+Íñigo Cirauqui-Viloria's 2022 master's thesis, *Deformable Structure from Motion
+in medical endoscopy sequences*, University of Zaragoza. COLMAP is originally
+by **Johannes Schönberger and contributors**. Cite the relevant original work,
+including Schönberger and Frahm, *Structure-from-Motion Revisited*, CVPR 2016,
+[doi:10.1109/CVPR.2016.445](https://doi.org/10.1109/CVPR.2016.445), and identify
+this derivative's tag or commit. [CITATION.cff](CITATION.cff) supplies fork metadata.
 
-IC08 - Deliverable review and fixes
-* colmap/src/base/reconstruction.cc
-
-IC09 - Export all models togheter as text files, import multiple models together
-* colmap/src/ui/main_window.h
-* colmap/src/ui/main_window.cc
-
-
-
-About (fork)
------
-
-Project forked from:
-   https://github.com/UZ-SLAMLab/colmap_for_colonoscopy
-
-This COLMAP version has been modified for work with colonoscopy images. Now COLMAP only estimate
-calibrated geometries and discart those that don't have a minimun inliers number. This implicated
-estimate the **Esential** matrix using **RANSAC** and the undistortionated key points coordinates. To make 
-posible an implementation of **Guided Matching**, the **Fundamental** matrix is calculated using the intrinsic matrix **K**.
-
-**Modified Files:**
-
-* colmap/src/estimators/two_view_geometry.cc
-* colmap/src/estimators/two_view_geometry.h
-* colmap/src/feature/matching.cc
-* colmap/src/feature/sift.cc
-* colmap/sfm/incremental_mapper.cc
-
-
-
+Existing license files are preserved: the repository-level [LICENSE](LICENSE)
+contains GPL version 3; [COPYING.txt](COPYING.txt) contains COLMAP's original
+BSD notice. Vendored components retain their respective notices in `lib/` and
+`src/ui/media/`; see also [the inherited license guide](doc/license.rst).
+No blanket license change to inherited or third-party material is made here.

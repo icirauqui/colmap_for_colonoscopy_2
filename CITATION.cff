@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "Cite the original COLMAP and colonoscopy adaptation works listed in README.md, and identify this fork's release or commit."
+type: software
+title: "COLMAP for colonoscopy 2: corrected reconstruction and export"
+authors:
+  - family-names: "Cirauqui-Viloria"
+    given-names: "Íñigo"
+version: "3.7-colonoscopy.1"
+date-released: "2026-10-12"
+repository-code: "https://github.com/icirauqui/colmap_for_colonoscopy_2"
+url: "https://github.com/icirauqui/colmap_for_colonoscopy_2/tree/3.7-colonoscopy.1"
